@@ -1,0 +1,60 @@
+-- Create sample user for the captions
+INSERT INTO public.users (id, email, name, is_admin) VALUES 
+('00000000-0000-0000-0000-000000000001', 'sample@example.com', 'Sample Admin', true);
+
+-- Create corresponding profile
+INSERT INTO public.profiles (user_id, email, display_name) VALUES 
+('00000000-0000-0000-0000-000000000001', 'sample@example.com', 'Sample Admin');
+
+-- Insert sample captions for each category (First batch: Blog Slogans)
+INSERT INTO public.captions (title, content, category, user_id) VALUES
+('Blog Slogan 1', 'Words that inspire, stories that matter', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 2', 'Where thoughts become words, words become change', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 3', 'Writing the future, one post at a time', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 4', 'Your voice, your story, your impact', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 5', 'Crafting content that connects and converts', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 6', 'Ideas worth sharing, stories worth telling', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 7', 'From thoughts to trends, we write the web', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 8', 'Digital storytelling at its finest', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 9', 'Where creativity meets community', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 10', 'Content that captivates, insights that inspire', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 11', 'Blogging beyond boundaries', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 12', 'Every word counts, every story matters', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 13', 'Creating conversations, building communities', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 14', 'Where passion meets publishing', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 15', 'Turning ideas into viral content', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 16', 'Write, share, inspire, repeat', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 17', 'Content creation with purpose', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 18', 'Your daily dose of digital inspiration', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 19', 'Making the web a better place, one post at a time', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 20', 'Where bloggers become influencers', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 21', 'Authentic voices, authentic stories', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 22', 'Content that connects hearts and minds', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 23', 'The art of digital storytelling', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 24', 'Where creativity has no limits', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 25', 'Building bridges through words', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 26', 'Content that educates, entertains, and empowers', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 27', 'Your thoughts, our platform, endless possibilities', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 28', 'Where every click counts and every read matters', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 29', 'Crafting content that stands the test of time', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 30', 'From blogger to brand, we help you grow', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 31', 'Content creation made simple and powerful', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 32', 'Where ideas bloom and stories flourish', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 33', 'The future of content is here', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 34', 'Writing that moves, content that converts', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 35', 'Your voice amplified, your message magnified', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 36', 'Content with character, blogs with backbone', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 37', 'Where quality meets quantity in content creation', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 38', 'Storytelling that sells, content that compels', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 39', 'Building your digital legacy, one post at a time', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 40', 'Where writers become winners', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 41', 'Content that clicks, stories that stick', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 42', 'Your creativity, our community, unlimited potential', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 43', 'Making every word work harder', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 44', 'Where content meets commerce', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 45', 'Writing the rules of digital engagement', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 46', 'Content that converts visitors into believers', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 47', 'Your message, our mission, maximum impact', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 48', 'Where passion meets publishing excellence', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 49', 'Content creation without limitations', 'Blog Slogans', '00000000-0000-0000-0000-000000000001'),
+('Blog Slogan 50', 'The power of words, the art of engagement', 'Blog Slogans', '00000000-0000-0000-0000-000000000001');
