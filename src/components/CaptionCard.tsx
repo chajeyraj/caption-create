@@ -79,7 +79,7 @@ export const CaptionCard = ({
 
           {/* Caption Text */}
           <div className="min-h-[80px] flex items-center">
-            <p className="text-foreground leading-relaxed text-sm group-hover:text-primary transition-colors duration-300">
+            <p className="text-foreground leading-relaxed text-sm group-hover:text-blue-600 transition-colors duration-300">
               "{caption}"
             </p>
           </div>
@@ -101,11 +101,21 @@ export const CaptionCard = ({
                 <span className="text-xs">{likeCount}</span>
               </Button>
               
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleShare}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-muted-foreground hover:!text-blue-600 transition-colors" 
+                onClick={handleShare}
+              >
                 <Share className="h-4 w-4" />
               </Button>
               
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleCopy}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-muted-foreground hover:!text-blue-600 transition-colors" 
+                onClick={handleCopy}
+              >
                 <BookOpen className="h-4 w-4" />
               </Button>
             </div>

@@ -4,77 +4,90 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Smile, Star, Quote, Coffee, Book, Zap, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useEffect, useState } from "react";
+import { fetchCategoryCounts } from "@/utils/categoryCounts";
+
 const categories = [
   {
     name: "Motivational",
     icon: Zap,
-    count: 1250,
-    color: "from-purple-500 to-pink-500",
+    color: "from-teal-500 to-emerald-500",
     description: "Inspire and get inspired"
   },
   {
     name: "Love & Romance",
     icon: Heart,
-    count: 892,
     color: "from-pink-500 to-red-500",
     description: "Express your feelings"
   },
   {
     name: "Funny",
     icon: Smile,
-    count: 756,
     color: "from-yellow-500 to-orange-500",
     description: "Bring smiles and laughter"
   },
   {
     name: "Success",
     icon: Star,
-    count: 634,
     color: "from-blue-500 to-cyan-500",
     description: "Celebrate achievements"
   },
   {
     name: "Life Quotes",
     icon: Quote,
-    count: 543,
     color: "from-green-500 to-teal-500",
     description: "Wisdom for daily life"
   },
   {
     name: "Coffee",
     icon: Coffee,
-    count: 432,
     color: "from-amber-600 to-yellow-500",
     description: "For coffee lovers"
   },
   {
     name: "Books",
     icon: Book,
-    count: 321,
-    color: "from-indigo-500 to-purple-500",
+    color: "from-cyan-500 to-teal-500",
     description: "Literary inspiration"
   },
   {
     name: "Good Morning",
     icon: Sun,
-    count: 287,
     color: "from-orange-500 to-pink-500",
     description: "Start your day right"
   },
   {
     name: "தமிழ்",
     icon: Quote,
-    count: 156,
     color: "from-red-500 to-orange-500",
     description: "Tamil quotes and wisdom"
   }
 ];
 
 const Categories = () => {
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const counts = await fetchCategoryCounts();
+        setCategoryCounts(counts);
+      } catch (err) {
+        setError("Failed to load category counts.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCounts();
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Navbar />
-      
       <main className="pt-20 px-4">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
@@ -87,42 +100,48 @@ const Categories = () => {
             </p>
           </div>
 
-          {/* Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-            {categories.map((category, index) => {
-              const Icon = category.icon;
-              return (
-                <Link 
-                  key={category.name}
-                  to={`/category/${encodeURIComponent(category.name)}`}
-                  className="block"
-                >
-                  <Card 
-                    className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-card bg-card/50 backdrop-blur-sm border-border/50 animate-fade-in"
-                    style={{animationDelay: `${index * 100}ms`}}
+          {/* Loading/Error States */}
+          {loading ? (
+            <div className="text-center py-12">Loading categories...</div>
+          ) : error ? (
+            <div className="text-center text-red-500 py-12">{error}</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+              {categories.map((category, index) => {
+                const Icon = category.icon;
+                const count = categoryCounts[category.name] || 0;
+                return (
+                  <Link 
+                    key={category.name}
+                    to={`/category/${encodeURIComponent(category.name)}`}
+                    className="block"
                   >
-                    <CardContent className="p-6 text-center">
-                      <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                        <Icon className="h-8 w-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {category.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {category.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground font-medium">
-                        {category.count} captions
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
+                    <Card 
+                      className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-card bg-card/50 backdrop-blur-sm border-border/50 animate-fade-in"
+                      style={{animationDelay: `${index * 100}ms`}}
+                    >
+                      <CardContent className="p-6 text-center">
+                        <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="h-8 w-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                          {category.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {category.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          {count} captions
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
-
       <Footer />
     </div>
   );

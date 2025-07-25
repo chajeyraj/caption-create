@@ -48,21 +48,21 @@ export const Hero = () => {
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <Users className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">10K+</span>
+                <span className="text-2xl font-bold text-white">10+</span>
               </div>
               <p className="text-white/70 text-sm">Active Creators</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <Sparkles className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">50K+</span>
+                <span className="text-2xl font-bold text-white">1000+</span>
               </div>
               <p className="text-white/70 text-sm">Captions Created</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <TrendingUp className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">100K+</span>
+                <span className="text-2xl font-bold text-white">100+</span>
               </div>
               <p className="text-white/70 text-sm">Shares Daily</p>
             </div>

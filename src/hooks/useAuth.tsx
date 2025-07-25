@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userProfile: { name: string | null; email: string } | null;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ name: string | null; email: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,18 +31,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check admin status when user logs in
+        // Check admin status and fetch profile when user logs in
         if (session?.user) {
           setTimeout(async () => {
             const { data: userData } = await supabase
               .from('users')
-              .select('is_admin')
+              .select('is_admin, name, email')
               .eq('id', session.user.id)
               .single();
             setIsAdmin(userData?.is_admin || false);
+            setUserProfile(userData ? { name: userData.name, email: userData.email } : null);
           }, 0);
         } else {
           setIsAdmin(false);
+          setUserProfile(null);
         }
         
         setLoading(false);
@@ -48,9 +52,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('name, email')
+          .eq('id', session.user.id)
+          .single();
+        setUserProfile(userData ? { name: userData.name, email: userData.email } : null);
+      } else {
+        setUserProfile(null);
+      }
       setLoading(false);
     });
 
@@ -117,6 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       user,
       session,
       loading,
+      userProfile,
       signUp,
       signIn,
       signOut,

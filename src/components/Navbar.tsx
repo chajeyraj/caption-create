@@ -4,11 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, X, Sparkles, Search, User, PenTool, LogOut } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, signOut, loading, isAdmin } = useAuth();
+  const { user, signOut, loading, isAdmin, userProfile } = useAuth();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -31,25 +32,25 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`transition-colors ${isActive('/') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
+              className={`transition-colors ${isActive('/') ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'}`}
             >
               Home
             </Link>
             <Link 
               to="/explore" 
-              className={`transition-colors ${isActive('/explore') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
+              className={`transition-colors ${isActive('/explore') ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'}`}
             >
               Explore
             </Link>
             <Link 
               to="/categories" 
-              className={`transition-colors ${isActive('/categories') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
+              className={`transition-colors ${isActive('/categories') ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'}`}
             >
               Categories
             </Link>
             <Link 
               to="/trending" 
-              className={`transition-colors ${isActive('/trending') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
+              className={`transition-colors ${isActive('/trending') ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'}`}
             >
               Trending
             </Link>
@@ -57,38 +58,30 @@ export const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search captions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
+            
             
             {!loading && (
               <>
                 {user ? (
                   <div className="flex items-center space-x-4">
-                    <span className="text-sm text-foreground">
-                      Welcome, {user.email}
-                    </span>
-                     {isAdmin && (
-                       <Button variant="outline" size="sm" asChild>
-                         <Link to="/admin">Admin</Link>
-                       </Button>
-                     )}
-                     <Button variant="outline" size="sm" asChild>
-                       <Link to="/profile">
-                         <User className="h-4 w-4 mr-2" />
-                         Profile
-                       </Link>
-                     </Button>
-                     <Button variant="outline" size="sm" onClick={signOut}>
-                       <LogOut className="h-4 w-4 mr-2" />
-                       Logout
-                     </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                          <User className="h-4 w-4 mr-2" />
+                          <span>{userProfile?.name || userProfile?.email || "User"}</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to="/profile">Profile</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ) : (
                   <Button variant="outline" size="sm" asChild>
@@ -128,16 +121,16 @@ export const Navbar = () => {
                 />
               </div>
 
-              <Link to="/" className="text-foreground hover:text-primary transition-colors py-2">
+              <Link to="/" className="text-foreground hover:text-blue-600 transition-colors py-2">
                 Home
               </Link>
-              <Link to="/explore" className="text-foreground hover:text-primary transition-colors py-2">
+              <Link to="/explore" className="text-foreground hover:text-blue-600 transition-colors py-2">
                 Explore
               </Link>
-              <Link to="/categories" className="text-foreground hover:text-primary transition-colors py-2">
+              <Link to="/categories" className="text-foreground hover:text-blue-600 transition-colors py-2">
                 Categories
               </Link>
-              <Link to="/trending" className="text-foreground hover:text-primary transition-colors py-2">
+              <Link to="/trending" className="text-foreground hover:text-blue-600 transition-colors py-2">
                 Trending
               </Link>
               
@@ -147,7 +140,7 @@ export const Navbar = () => {
                     {user ? (
                       <>
                         <span className="text-sm text-foreground px-2">
-                          Welcome, {user.email}
+                          Welcome, {userProfile?.name || userProfile?.email}
                         </span>
                         {isAdmin && (
                           <Button variant="outline" size="sm" className="w-full" asChild>
