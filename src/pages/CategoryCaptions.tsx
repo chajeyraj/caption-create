@@ -41,6 +41,8 @@ const CategoryCaptions = () => {
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(9); // 9 items per page (3x3 grid)
   
   // Get the gradient class for the current category, default to blue if not found
   const gradientClass = categoryColors[category] || 'from-blue-500 to-cyan-500';
@@ -77,8 +79,22 @@ const CategoryCaptions = () => {
 
   const filteredCaptions = captions.filter(caption =>
     caption.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    caption.title.toLowerCase().includes(searchQuery.toLowerCase())
+    (caption.title && caption.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  // Get current captions for pagination
+  const indexOfLastCaption = currentPage * itemsPerPage;
+  const indexOfFirstCaption = indexOfLastCaption - itemsPerPage;
+  const currentCaptions = filteredCaptions.slice(indexOfFirstCaption, indexOfLastCaption);
+  const totalPages = Math.ceil(filteredCaptions.length / itemsPerPage);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, category]);
 
   if (loading) {
     return (
@@ -165,19 +181,72 @@ const CategoryCaptions = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {filteredCaptions.map((captionData) => (
-                <div key={captionData.id} className="transform transition-all duration-300 hover:scale-[1.02]">
-                  <CaptionCard 
-                    caption={captionData.content}
-                    author={captionData.profiles?.display_name || "Anonymous"}
-                    category={captionData.category || "General"}
-                    likes={0}
-                    isLiked={false}
-                  />
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {currentCaptions.map((captionData) => (
+                  <div key={captionData.id} className="transform transition-all duration-300 hover:scale-[1.02]">
+                    <CaptionCard 
+                      caption={captionData.content}
+                      author={captionData.profiles?.display_name || "Anonymous"}
+                      category={captionData.category || "General"}
+                      likes={0}
+                      isLiked={false}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-8 mb-12">
+                  <nav className="flex items-center space-x-1">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 rounded-md border border-muted-foreground/20 text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Previous
+                    </button>
+                    
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      // Show first page, last page, and pages around current page
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => paginate(pageNum)}
+                          className={`px-3 py-1 rounded-md border ${
+                            currentPage === pageNum
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'border-muted-foreground/20 text-muted-foreground hover:bg-muted'
+                          } transition-colors`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 rounded-md border border-muted-foreground/20 text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Next
+                    </button>
+                  </nav>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </main>

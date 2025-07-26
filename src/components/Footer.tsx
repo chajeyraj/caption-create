@@ -67,22 +67,22 @@ export const Footer = () => {
           <div>
             <h3 className="font-bold text-white text-lg mb-4 drop-shadow-sm">Categories</h3>
             <div className="space-y-2">
-              <Link to="/category/motivational" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
+              <Link to="/category/Motivational" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
                 <span className="relative before:absolute before:bottom-0 before:left-0 before:w-0 before:h-px before:bg-white before:transition-all before:duration-300 group-hover:before:w-full">
                   Motivational
                 </span>
               </Link>
-              <Link to="/category/funny" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
+              <Link to="/category/Funny" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
                 <span className="relative before:absolute before:bottom-0 before:left-0 before:w-0 before:h-px before:bg-white before:transition-all before:duration-300 group-hover:before:w-full">
                   Funny
                 </span>
               </Link>
-              <Link to="/category/attitude" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
+              <Link to="/category/Attitude" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
                 <span className="relative before:absolute before:bottom-0 before:left-0 before:w-0 before:h-px before:bg-white before:transition-all before:duration-300 group-hover:before:w-full">
                   Attitude
                 </span>
               </Link>
-              <Link to="/category/instagram" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
+              <Link to="/category/Instagram" className="block text-white/90 hover:text-white transition-all duration-300 font-medium group">
                 <span className="relative before:absolute before:bottom-0 before:left-0 before:w-0 before:h-px before:bg-white before:transition-all before:duration-300 group-hover:before:w-full">
                   Instagram
                 </span>
