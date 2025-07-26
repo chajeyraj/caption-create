@@ -32,7 +32,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -208,7 +208,7 @@ const Profile = () => {
                 My Profile
               </h1>
               <p className="text-muted-foreground mt-2">
-                Welcome back, {user.email}
+                Welcome back, {userProfile?.name || user?.email?.split('@')[0] || 'User'}
               </p>
             </div>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
