@@ -2,12 +2,17 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userProfile: { name: string | null; email: string } | null;
+  userProfile: { 
+    name: string | null; 
+    display_name?: string | null;
+    email: string 
+  } | null;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -21,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ name: string | null; email: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ name: string | null; email: string; display_name?: string | null } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -34,13 +39,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Check admin status and fetch profile when user logs in
         if (session?.user) {
           setTimeout(async () => {
+            // Fetch user data from users table for admin status
             const { data: userData } = await supabase
               .from('users')
-              .select('is_admin, name, email')
+              .select('is_admin, email')
               .eq('id', session.user.id)
               .single();
+              
+            // Fetch display_name from profiles table
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('display_name, email')
+              .eq('user_id', session.user.id)
+              .single();
+              
             setIsAdmin(userData?.is_admin || false);
-            setUserProfile(userData ? { name: userData.name, email: userData.email } : null);
+            setUserProfile({
+              name: profileData?.display_name || null,
+              display_name: profileData?.display_name || null,
+              email: userData?.email || session.user.email || ''
+            });
           }, 0);
         } else {
           setIsAdmin(false);
@@ -56,12 +74,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        // Fetch user data from users table for admin status
         const { data: userData } = await supabase
           .from('users')
-          .select('name, email')
+          .select('email')
           .eq('id', session.user.id)
           .single();
-        setUserProfile(userData ? { name: userData.name, email: userData.email } : null);
+          
+        // Fetch display_name from profiles table
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('display_name, email')
+          .eq('user_id', session.user.id)
+          .single();
+          
+        setUserProfile({
+          name: profileData?.display_name || null,
+          display_name: profileData?.display_name || null,
+          email: userData?.email || session.user.email || ''
+        });
       } else {
         setUserProfile(null);
       }
@@ -72,39 +103,69 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          display_name: displayName
+    try {
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+          },
+        },
+      });
+
+      if (signUpError) {
+        toast({
+          title: "Sign Up Error",
+          description: signUpError.message,
+          variant: "destructive"
+        });
+        return { error: signUpError };
+      }
+
+      // Create a profile entry if user was created
+      if (authData?.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            user_id: authData.user.id,
+            display_name: displayName || null,
+            email: email,
+            updated_at: new Date().toISOString(),
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          toast({
+            title: "Error",
+            description: "Account created, but there was an error saving your profile.",
+            variant: "destructive"
+          });
+          return { error: profileError };
         }
       }
-    });
 
-    if (error) {
+      toast({
+        title: "Success!",
+        description: "Please check your email to confirm your account.",
+      });
+
+      return { data: authData, error: null };
+    } catch (error: any) {
+      console.error('Error during sign up:', error);
       toast({
         title: "Sign Up Error",
-        description: error.message,
+        description: error.message || 'An unexpected error occurred',
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "Sign Up Successful",
-        description: "Please check your email to confirm your account."
-      });
+      return { error };
     }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (error) {
@@ -115,7 +176,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     }
 
-    return { error };
+    return { data, error };
   };
 
   const signOut = async () => {
@@ -124,6 +185,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       title: "Signed Out",
       description: "You have been successfully signed out."
     });
+    
+    // Redirect to home page after sign out
+    const navigate = useNavigate();
+    navigate('/');
   };
 
   return (

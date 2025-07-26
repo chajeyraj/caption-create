@@ -1,21 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, BookOpen, Search, User, PenTool, LogOut } from "lucide-react";
+import { Menu, X, BookOpen, Search, User, PenTool, LogOut, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { AuthModal } from "./AuthModal";
+import { SignupModal } from "./SignupModal";
+// Import hooks directly to avoid circular dependencies
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { user, signOut, loading, isAdmin, userProfile } = useAuth();
   const location = useLocation();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Set mounted state after initial render to avoid SSR issues
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Close mobile menu when switching to desktop
+  useEffect(() => {
+    if (isDesktop) {
+      setIsMenuOpen(false);
+    }
+  }, [isDesktop]);
+
+  // Close modals when user is authenticated
+  useEffect(() => {
+    if (user) {
+      setShowAuthModal(false);
+      setShowSignupModal(false);
+    }
+  }, [user]);
+
+  // Memoize the modal handlers to prevent unnecessary re-renders
+  const handleCloseAuthModal = useCallback(() => {
+    setShowAuthModal(false);
+  }, []);
+  
+  const handleCloseSignupModal = useCallback(() => {
+    setShowSignupModal(false);
+  }, []);
+  
+  const handleOpenAuthModal = useCallback(() => {
+    setShowAuthModal(true);
+  }, []);
+
+  // Handle successful authentication
+  const handleAuthSuccess = useCallback(() => {
+    setShowAuthModal(false);
+    setShowSignupModal(false);
+    if (!isDesktop) {
+      setIsMenuOpen(false);
+    }
+  }, [isDesktop]);
+
+  const switchToSignup = useCallback(() => {
+    setShowAuthModal(false);
+    // Small delay to allow modal transition
+    const timer = setTimeout(() => {
+      setShowSignupModal(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const switchToLogin = useCallback(() => {
+    setShowSignupModal(false);
+    // Small delay to allow modal transition
+    const timer = setTimeout(() => {
+      setShowAuthModal(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -67,28 +135,50 @@ export const Navbar = () => {
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                          <User className="h-4 w-4 mr-2" />
-                          <span>{userProfile?.name || userProfile?.email || "User"}</span>
+                        <Button variant="outline" size="sm" className="flex items-center gap-2 pr-2">
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 mr-2" />
+                            <span className="font-medium">
+                              {userProfile?.display_name || userProfile?.name || user.email?.split('@')[0] || "User"}
+                            </span>
+                          </div>
+                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to="/profile">Profile</Link>
+                      <DropdownMenuContent className="w-48" align="end" sideOffset={8}>
+                        <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
+                          <Link to="/profile" className="w-full">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile</span>
+                          </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/dashboard" target="_blank" rel="noopener noreferrer">Dashboard</Link>
+                        {isAdmin && (
+                          <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
+                            <Link to="/admin" className="w-full">
+                              <PenTool className="mr-2 h-4 w-4" />
+                              <span>Admin</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem 
+                          onClick={signOut}
+                          className="cursor-pointer px-4 py-2 text-sm text-destructive focus:text-destructive"
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Sign out</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 ) : (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/auth">
-                      <User className="h-4 w-4 mr-2" />
-                      Login
-                    </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleOpenAuthModal}
+                    className="flex items-center"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Login
                   </Button>
                 )}
               </>
@@ -139,31 +229,45 @@ export const Navbar = () => {
                   <>
                     {user ? (
                       <>
-                        <span className="text-sm text-foreground px-2">
-                          Welcome, {userProfile?.name || userProfile?.email}
+                        <span className="text-sm text-foreground px-2 flex items-center">
+                          Welcome, {userProfile?.display_name || userProfile?.name || user.email?.split('@')[0]}
+                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </span>
-                        {isAdmin && (
-                          <Button variant="outline" size="sm" className="w-full" asChild>
-                            <Link to="/admin">Admin</Link>
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" className="w-full" asChild>
-                          <Link to="/profile">
-                            <User className="h-4 w-4 mr-2" />
-                            Profile
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
-                          <LogOut className="h-4 w-4 mr-2" />
-                          Logout
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuContent className="w-48" align="end" sideOffset={8}>
+                            <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
+                              <Link to="/profile" className="w-full">
+                                <User className="mr-2 h-4 w-4" />
+                                <span>Profile</span>
+                              </Link>
+                            </DropdownMenuItem>
+                            {isAdmin && (
+                              <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
+                                <Link to="/dashboard" className="w-full">
+                                  <PenTool className="mr-2 h-4 w-4" />
+                                  <span>Dashboard</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem 
+                              onClick={signOut}
+                              className="cursor-pointer px-4 py-2 text-sm text-destructive focus:text-destructive"
+                            >
+                              <LogOut className="mr-2 h-4 w-4" />
+                              <span>Sign out</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     ) : (
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link to="/auth">
-                          <User className="h-4 w-4 mr-2" />
-                          Login
-                        </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full" 
+                        onClick={handleOpenAuthModal}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Login
                       </Button>
                     )}
                   </>
@@ -177,6 +281,23 @@ export const Navbar = () => {
           </div>
         )}
       </div>
+      
+      {/* Auth Modals - Only render on client side */}
+      {isMounted && (
+        <>
+          <AuthModal 
+            isOpen={showAuthModal}
+            onClose={handleCloseAuthModal}
+            onSwitchToSignup={switchToSignup}
+          />
+          
+          <SignupModal
+            isOpen={showSignupModal}
+            onClose={handleCloseSignupModal}
+            onSwitchToLogin={switchToLogin}
+          />
+        </>
+      )}
     </nav>
   );
 };

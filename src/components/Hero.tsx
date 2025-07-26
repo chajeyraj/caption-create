@@ -1,7 +1,48 @@
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Users } from "lucide-react";
+import { useAuth } from '@/hooks/useAuth';
+import { AuthModal } from '@/components/AuthModal';
 
 export const Hero = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+
+  const handleStartCreating = () => {
+    if (user) {
+      navigate('/profile');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleExplore = () => {
+    navigate('/explore');
+  };
+
+  const handleCloseAuthModal = useCallback(() => {
+    setShowAuthModal(false);
+  }, []);
+
+  const switchToSignup = useCallback(() => {
+    setShowAuthModal(false);
+    // Small delay to allow modal transition
+    const timer = setTimeout(() => {
+      setShowSignupModal(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleAuthSuccess = useCallback(() => {
+    setShowAuthModal(false);
+    setShowSignupModal(false);
+    // Navigate to profile after successful login
+    navigate('/profile');
+  }, [navigate]);
+
   return (
     <section className="relative overflow-hidden bg-gradient-hero min-h-screen flex items-center">
       {/* Animated background elements */}
@@ -34,11 +75,21 @@ export const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="animate-fade-in flex flex-col sm:flex-row gap-4 justify-center mb-12" style={{ animationDelay: '0.4s' }}>
-            <Button variant="hero" size="lg" className="group">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="group"
+              onClick={handleStartCreating}
+            >
               Start Creating
               <Sparkles className="ml-2 h-5 w-5 group-hover:animate-spin" />
             </Button>
-            <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+              onClick={handleExplore}
+            >
               Explore Captions
             </Button>
           </div>
@@ -69,6 +120,25 @@ export const Hero = () => {
           </div>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={handleCloseAuthModal}
+        onSwitchToSignup={switchToSignup}
+        onAuthSuccess={handleAuthSuccess}
+      />
+      
+      {/* Signup Modal - You can add this if needed */}
+      {/* <SignupModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        onSwitchToLogin={() => {
+          setShowSignupModal(false);
+          setShowAuthModal(true);
+        }}
+        onAuthSuccess={handleAuthSuccess}
+      /> */}
     </section>
   );
 };
