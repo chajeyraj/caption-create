@@ -60,7 +60,7 @@ export const CaptionCard = ({
   };
 
   return (
-    <Card className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-card bg-card/50 backdrop-blur-sm border-border/50">
+    <Card className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-card bg-blue-50 dark:bg-blue-900/20 border-border/50">
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Author Info */}

@@ -117,11 +117,14 @@ const Categories = () => {
                     className="block"
                   >
                     <Card 
-                      className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-card bg-card/50 backdrop-blur-sm border-border/50 animate-fade-in"
+                      className={`group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden animate-fade-in`}
                       style={{animationDelay: `${index * 100}ms`}}
                     >
-                      <CardContent className="p-6 text-center">
-                        <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={`absolute inset-0 bg-gradient-to-br ${category.color.replace('to-', 'to-').replace('from-', 'from-')} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
+                      <CardContent className="p-6 text-center relative z-10">
+                        <div 
+                          className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-md`}
+                        >
                           <Icon className="h-8 w-8 text-white" />
                         </div>
                         <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
@@ -130,9 +133,9 @@ const Categories = () => {
                         <p className="text-sm text-muted-foreground mb-3">
                           {category.description}
                         </p>
-                        <p className="text-xs text-muted-foreground font-medium">
-                          {count} captions
-                        </p>
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-black/20 text-foreground/80">
+                          {count} {count === 1 ? 'caption' : 'captions'}
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>

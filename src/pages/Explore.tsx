@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CaptionCard } from "@/components/CaptionCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+
+// Number of items per page
+const ITEMS_PER_PAGE = 9;
 
 interface Caption {
   id: string;
@@ -26,7 +29,8 @@ const Explore = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [categories, setCategories] = useState<string[]>(["All"]);
 
   useEffect(() => {
@@ -72,13 +76,31 @@ const Explore = () => {
     setLoading(false);
   };
 
-  const filteredCaptions = captions.filter(caption => {
-    const matchesSearch = caption.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         caption.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (caption.profiles?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false);
-    const matchesCategory = selectedCategory === "All" || caption.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredCaptions = useMemo(() => {
+    return captions.filter(caption => {
+      const matchesSearch = caption.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (caption.title?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+                          (caption.profiles?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false);
+      const matchesCategory = selectedCategory === "All" || caption.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [captions, searchQuery, selectedCategory]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredCaptions.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedCaptions = filteredCaptions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
+  // Handle page change
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen">
@@ -129,8 +151,8 @@ const Explore = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {filteredCaptions.map((caption) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {paginatedCaptions.map((caption) => (
                   <CaptionCard
                     key={caption.id}
                     caption={caption.content}
@@ -142,9 +164,91 @@ const Explore = () => {
                 ))}
               </div>
 
-              {filteredCaptions.length === 0 && !loading && (
+              {filteredCaptions.length === 0 && !loading ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground text-lg">No captions found matching your search.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    Showing <span className="font-medium">{Math.min(startIndex + 1, filteredCaptions.length)}</span> to{' '}
+                    <span className="font-medium">
+                      {Math.min(startIndex + ITEMS_PER_PAGE, filteredCaptions.length)}
+                    </span>{' '}
+                    of <span className="font-medium">{filteredCaptions.length}</span> results
+                  </p>
+                  
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(1)}
+                      disabled={currentPage === 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    <div className="flex items-center gap-1 mx-2">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        // Show pages around current page
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => goToPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <span className="px-2 text-sm text-muted-foreground">...</span>
+                      )}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(totalPages)}
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </>
