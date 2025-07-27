@@ -97,7 +97,7 @@ export const Navbar = () => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null;
                 target.src = "/logo.png";
-                target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500";
+                target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
               }}
             />
           </Link>

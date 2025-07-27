@@ -29,7 +29,7 @@ const categories = [
   {
     name: "Success",
     icon: Star,
-    color: "from-blue-500 to-cyan-500",
+    color: "from-purple-500 to-cyan-500",
     description: "Celebrate achievements"
   },
   {

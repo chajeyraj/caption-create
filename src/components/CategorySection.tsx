@@ -46,8 +46,8 @@ const categories = [
     icon: Lightbulb,
     title: "Blog Slogans",
     description: "Catchy phrases for your brand",
-    gradient: "from-blue-400 to-cyan-500",
-    bg: "bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/10"
+    gradient: "from-purple-400 to-cyan-500",
+    bg: "bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-purple-900/20 dark:to-cyan-900/10"
   },
 ];
 

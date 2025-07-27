@@ -126,11 +126,11 @@ const Trending = () => {
         };
       case "new":
         return {
-          bg: 'bg-gradient-to-r from-blue-500/10 to-cyan-500/10',
+          bg: 'bg-gradient-to-r from-purple-500/10 to-cyan-500/10',
           text: 'text-blue-600',
           border: 'border-blue-500/20',
           icon: <Clock className="h-4 w-4 text-blue-500" />,
-          gradient: 'from-blue-500 to-cyan-500'
+          gradient: 'from-purple-500 to-cyan-500'
         };
       default:
         return {
@@ -194,7 +194,7 @@ const Trending = () => {
             </div>
             
             <div className="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-card to-card/80 border border-border/50 hover:border-primary/20 transition-all duration-300 hover:shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors duration-300">
                   <Clock className="h-6 w-6 text-blue-500" />
@@ -202,7 +202,7 @@ const Trending = () => {
                 <h3 className="text-3xl font-bold text-foreground mb-1">{stats.new}+</h3>
                 <p className="text-muted-foreground">New Today</p>
                 <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500" style={{ width: `${Math.min(100, (stats.new / 20) * 100)}%` }}></div>
+                  <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-500" style={{ width: `${Math.min(100, (stats.new / 20) * 100)}%` }}></div>
                 </div>
               </div>
             </div>

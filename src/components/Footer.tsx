@@ -24,7 +24,7 @@ export const Footer = () => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.src = "/logo.png";
-                    target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500";
+                    target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
                   }}
                 />
                 <span className="text-xl font-bold text-white drop-shadow-md">
@@ -107,47 +107,47 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-<div className="mt-10 px-4">
-  <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 p-6 pt-0 md:p-8 md:pt-0">
-    <div className="flex flex-col items-center text-center">
-      <p className="text-white/90">Developed by</p>
-      <p className="text-blue-800 font-medium text-lg mb-6">axzell innovations</p>
+        <div className="mt-10 px-4">
+          <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 p-6 pt-0 md:p-8 md:pt-0">
+            <div className="flex flex-col items-center text-center">
+              <p className="text-white/90">Developed by</p>
+              <p className="text-blue-800 font-medium text-lg mb-6">axzell innovations</p>
 
-      <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="flex items-center gap-6">
-            <a href="tel:+94768180977" className="text-white/80 hover:text-white text-sm flex items-center">
-              📞 +94 (76) 818-0977
-            </a>
-            <a href="mailto:social@axzellinnovations.com" className="text-white/80 hover:text-white text-sm flex items-center">
-              ✉️ social@axzellinnovations.com
-            </a>
-          </div>
-          <div className="flex items-center space-x-4">
-            <a href="https://twitter.com/axzellinnovate" className="text-white/80 hover:text-white">
-              <Twitter className="h-5 w-5" />
-            </a>
-            <a href="https://www.instagram.com/axzellinnovations" className="text-white/80 hover:text-white">
-              <Instagram className="h-5 w-5" />
-            </a>
-            <a href="https://github.com/axzellinnovations" className="text-white/80 hover:text-white">
-              <Github className="h-5 w-5" />
-            </a>
-            <a href="https://www.linkedin.com/company/axzell-innovations" className="text-white/80 hover:text-white">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761..."/>
-              </svg>
-            </a>
+              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className="flex items-center gap-6">
+                    <a href="tel:+94768180977" className="text-white/80 hover:text-white text-sm flex items-center">
+                      📞 +94 (76) 818-0977
+                    </a>
+                    <a href="mailto:social@axzellinnovations.com" className="text-white/80 hover:text-white text-sm flex items-center">
+                      ✉️ social@axzellinnovations.com
+                    </a>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <a href="https://twitter.com/axzellinnovate" className="text-white/80 hover:text-white">
+                      <Twitter className="h-5 w-5" />
+                    </a>
+                    <a href="https://www.instagram.com/axzellinnovations" className="text-white/80 hover:text-white">
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                    <a href="https://github.com/axzellinnovations" className="text-white/80 hover:text-white">
+                      <Github className="h-5 w-5" />
+                    </a>
+                    <a href="https://www.linkedin.com/company/axzell-innovations" className="text-white/80 hover:text-white">
+                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761..."/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <p className="text-sm text-white/80 mt-4 md:mt-0">
+                  &copy; 2025 axzell innovations. All rights reserved.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-
-        <p className="text-sm text-white/80 mt-4 md:mt-0">
-          &copy; 2025 axzell innovations. All rights reserved.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 
 
       </div>

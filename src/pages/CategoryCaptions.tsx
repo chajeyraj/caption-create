@@ -13,7 +13,7 @@ const categoryColors: Record<string, string> = {
   "Motivational": "from-teal-500 to-emerald-500",
   "Love & Romance": "from-pink-500 to-red-500",
   "Funny": "from-yellow-500 to-orange-500",
-  "Success": "from-blue-500 to-cyan-500",
+  "Success": "from-purple-500 to-cyan-500",
   "Life Quotes": "from-green-500 to-teal-500",
   "Coffee": "from-amber-600 to-yellow-500",
   "Books": "from-cyan-500 to-teal-500",
@@ -45,7 +45,7 @@ const CategoryCaptions = () => {
   const [itemsPerPage] = useState(9); // 9 items per page (3x3 grid)
   
   // Get the gradient class for the current category, default to blue if not found
-  const gradientClass = categoryColors[category] || 'from-blue-500 to-cyan-500';
+  const gradientClass = categoryColors[category] || 'from-purple-500 to-cyan-500';
 
   useEffect(() => {
     fetchCaptions();
