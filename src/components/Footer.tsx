@@ -50,15 +50,14 @@ export const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <img 
-                  src="/src/components/img/logo.PNG" 
+                  src="/img/logo.PNG" 
                   alt="CaptionCrafter Logo" 
                   className="h-10 w-auto rounded-lg shadow-lg"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.src = "/logo.png";
-                    target.className =
-                      "h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
+                    target.className = "h-10 w-10";
                   }}
                 />
                 <span className="text-2xl font-extrabold text-white tracking-wide drop-shadow-md">

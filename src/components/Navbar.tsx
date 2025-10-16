@@ -93,14 +93,14 @@ export const Navbar = () => {
           <div className="flex items-center justify-start md:justify-start w-auto md:w-auto">
             <Link to="/" className="flex items-center space-x-2 group">
               <img 
-                src="/src/components/img/logo.PNG" 
+                src="/img/logo.PNG" 
                 alt="CaptionCrafter Logo" 
                 className="h-8 w-auto"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
                   target.src = "/logo.png";
-                  target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
+                  target.className = "h-8 w-8";
                 }}
               />
               <span className={`text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent ${isMenuOpen ? 'md:hidden' : ''}`}>
