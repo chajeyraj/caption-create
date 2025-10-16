@@ -85,25 +85,32 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <img 
-              src="/src/components/img/logo.PNG" 
-              alt="CaptionCrafter Logo" 
-              className="h-8 w-auto"
-              onError={(e) => {
-                // Fallback in case the image fails to load
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = "/logo.png";
-                target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
-              }}
-            />
-          </Link>
+        <div className="flex items-center justify-between h-16 relative">
+          {/* Mobile Menu Button - Left aligned */}
+          
+
+          {/* Logo - Centered */}
+          <div className="flex items-center justify-start md:justify-start w-auto md:w-auto">
+            <Link to="/" className="flex items-center space-x-2 group">
+              <img 
+                src="/src/components/img/logo.PNG" 
+                alt="CaptionCrafter Logo" 
+                className="h-8 w-auto"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = "/logo.png";
+                  target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
+                }}
+              />
+              <span className={`text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent ${isMenuOpen ? 'md:hidden' : ''}`}>
+                Caption Crafter
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
             <Link 
               to="/" 
               className={`transition-colors ${isActive('/') ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'}`}
@@ -130,10 +137,8 @@ export const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            
-            
+          {/* Desktop Actions - Right aligned */}
+          <div className="hidden md:flex items-center space-x-4 absolute right-0">
             {!loading && (
               <>
                 {user ? (

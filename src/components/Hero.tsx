@@ -44,7 +44,7 @@ export const Hero = () => {
   }, [navigate]);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-hero min-h-screen flex items-center">
+    <section className="relative overflow-hidden bg-gradient-hero min-h-screen flex items-center mt-[5px]">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-4 -right-4 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float"></div>

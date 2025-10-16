@@ -1,14 +1,48 @@
-import { Github, Twitter, Instagram, BookOpen } from "lucide-react";
+import { useState } from "react";
+import { Github, Twitter, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Footer = () => {
-  return (
-    <footer className="bg-gradient-hero relative overflow-hidden mt-auto">
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+  const [visible, setVisible] = useState(true);
+
+  // Show Footer Button (when hidden)
+  if (!visible) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => setVisible(true)}
+          className="px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 
+                     text-white shadow-lg shadow-cyan-500/30 backdrop-blur-md 
+                     hover:scale-105 hover:shadow-cyan-400/50 transition-all duration-300"
+        >
+          Show Footer ⬆
+        </button>
       </div>
-      <div className="container mx-auto px-4 py-12 relative z-10 max-w-7xl">
+    );
+  }
+
+  return (
+    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden mt-auto">
+      {/* Hide Button (floating top-right inside footer) */}
+      <div className="absolute top-6 right-6 z-20">
+        <button
+          onClick={() => setVisible(false)}
+          className="px-3 py-1.5 text-sm rounded-full bg-white/10 backdrop-blur-md text-white 
+                     border border-white/20 hover:bg-white/20 hover:scale-105 
+                     transition-all duration-300 shadow-md shadow-white/10"
+        >
+          ✖ Hide Footer
+        </button>
+      </div>
+
+      {/* Background Glow Effects */}
+      <div className="absolute inset-0 overflow-hidden -z-10">
+        <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Main Footer Content */}
+      <div className="container mx-auto px-6 py-14 relative z-10 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
 
           {/* Brand Section */}
@@ -18,32 +52,35 @@ export const Footer = () => {
                 <img 
                   src="/src/components/img/logo.PNG" 
                   alt="CaptionCrafter Logo" 
-                  className="h-8 w-auto"
+                  className="h-10 w-auto rounded-lg shadow-lg"
                   onError={(e) => {
-                    // Fallback in case the image fails to load
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.src = "/logo.png";
-                    target.className = "h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
+                    target.className =
+                      "h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500";
                   }}
                 />
-                <span className="text-xl font-bold text-white drop-shadow-md">
+                <span className="text-2xl font-extrabold text-white tracking-wide drop-shadow-md">
                   CaptionCrafter
                 </span>
               </div>
-              <p className="text-white/90 drop-shadow-sm">
+              <p className="text-white/80 leading-relaxed">
                 Unleash your words, inspire the world. Create and share the perfect captions for every moment.
               </p>
+
+              {/* Social Links */}
               <div className="flex items-center space-x-4">
-                <a href="#" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-0.5">
-                  <Twitter className="h-4 w-4 text-white/90" />
-                </a>
-                <a href="#" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-0.5">
-                  <Instagram className="h-4 w-4 text-white/90" />
-                </a>
-                <a href="#" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-0.5">
-                  <Github className="h-4 w-4 text-white/90" />
-                </a>
+                {[Twitter, Instagram, Github].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
+                               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    <Icon className="h-4 w-4 text-white" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -54,13 +91,15 @@ export const Footer = () => {
               
               {/* Quick Links */}
               <div>
-                <h3 className="font-bold text-white text-lg mb-4">Quick Links</h3>
+                <h3 className="font-semibold text-white text-lg mb-4 border-l-4 border-cyan-400 pl-3">
+                  Quick Links
+                </h3>
                 <ul className="space-y-2">
                   {["Home", "Explore", "Categories", "Trending"].map((text, i) => (
                     <li key={i}>
                       <Link
                         to={`/${text.toLowerCase()}`}
-                        className="transition-colors duration-300 hover:text-cyan-400"
+                        className="hover:text-cyan-400 transition-colors duration-300"
                       >
                         {text}
                       </Link>
@@ -71,13 +110,15 @@ export const Footer = () => {
 
               {/* Categories */}
               <div>
-                <h3 className="font-bold text-white text-lg mb-4">Categories</h3>
+                <h3 className="font-semibold text-white text-lg mb-4 border-l-4 border-green-400 pl-3">
+                  Categories
+                </h3>
                 <ul className="space-y-2">
                   {["Motivational", "Funny", "Attitude", "Instagram"].map((text, i) => (
                     <li key={i}>
                       <Link
                         to={`/category/${text}`}
-                        className="transition-colors duration-300 hover:text-green-400"
+                        className="hover:text-green-400 transition-colors duration-300"
                       >
                         {text}
                       </Link>
@@ -88,13 +129,15 @@ export const Footer = () => {
 
               {/* Support */}
               <div>
-                <h3 className="font-bold text-white text-lg mb-4">Support</h3>
+                <h3 className="font-semibold text-white text-lg mb-4 border-l-4 border-pink-400 pl-3">
+                  Support
+                </h3>
                 <ul className="space-y-2">
                   {["Help Center", "Contact Us", "Privacy Policy", "Terms of Service"].map((text, i) => (
                     <li key={i}>
                       <a
                         href="#"
-                        className="transition-colors duration-300 hover:text-pink-400"
+                        className="hover:text-pink-400 transition-colors duration-300"
                       >
                         {text}
                       </a>
@@ -107,49 +150,75 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 px-4">
-          <div className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/20 p-6 pt-0 md:p-8 md:pt-0">
-            <div className="flex flex-col items-center text-center">
-              <p className="text-white/90">Developed by</p>
-              <p className="text-blue-800 font-medium text-lg mb-6">axzell innovations</p>
+        <div className="mt-12 px-4">
+          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-8">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <p className="text-white/90 text-sm tracking-wide">Developed by</p>
+              <p className="text-cyan-400 font-semibold text-lg">axzell innovations</p>
 
               <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <div className="flex items-center gap-6">
-                    <a href="tel:+94768180977" className="text-white/80 hover:text-white text-sm flex items-center">
-                      📞 +94 (76) 818-0977
-                    </a>
-                    <a href="mailto:social@axzellinnovations.com" className="text-white/80 hover:text-white text-sm flex items-center">
-                      ✉️ social@axzellinnovations.com
-                    </a>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <a href="https://twitter.com/axzellinnovate" className="text-white/80 hover:text-white">
-                      <Twitter className="h-5 w-5" />
-                    </a>
-                    <a href="https://www.instagram.com/axzellinnovations" className="text-white/80 hover:text-white">
-                      <Instagram className="h-5 w-5" />
-                    </a>
-                    <a href="https://github.com/axzellinnovations" className="text-white/80 hover:text-white">
-                      <Github className="h-5 w-5" />
-                    </a>
-                    <a href="https://www.linkedin.com/company/axzell-innovations" className="text-white/80 hover:text-white">
-                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761..."/>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
+                  <a
+                    href="tel:+94768180977"
+                    className="text-white/70 hover:text-white transition-colors text-sm"
+                  >
+                    📞 +94 (76) 818-0977
+                  </a>
+                  <a
+                    href="mailto:social@axzellinnovations.com"
+                    className="text-white/70 hover:text-white transition-colors text-sm"
+                  >
+                    
+                    ✉️ social@axzellinnovations.com
+                  </a>
+                  {/* Social Links */}
+<div className="flex items-center space-x-4">
+  {/* Twitter */}
+  <a
+    href="https://twitter.com/axzellinnovate"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
+               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
+    aria-label="Twitter"
+  >
+    <Twitter className="h-4 w-4 text-white" />
+  </a>
 
-                <p className="text-sm text-white/80 mt-4 md:mt-0">
-                  &copy; 2025 axzell innovations. All rights reserved.
+  {/* Instagram */}
+  <a
+    href="https://www.instagram.com/axzellinnovations"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
+               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
+    aria-label="Instagram"
+  >
+    <Instagram className="h-4 w-4 text-white" />
+  </a>
+
+  {/* GitHub */}
+  <a
+    href="https://github.com/axzellinnovations"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
+               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
+    aria-label="GitHub"
+  >
+    <Github className="h-4 w-4 text-white" />
+  </a>
+</div>
+                </div>
+                
+
+                <p className="text-xs text-white/60 mt-4 md:mt-0">
+                  © 2025 axzell innovations. All rights reserved.
                 </p>
               </div>
             </div>
           </div>
         </div>
-
-
       </div>
     </footer>
   );
