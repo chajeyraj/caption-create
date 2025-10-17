@@ -12,7 +12,7 @@ import { Footer } from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, LogOut } from 'lucide-react';
 
 interface Caption {
   id: string;
@@ -32,7 +32,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -202,7 +202,7 @@ const Profile = () => {
       <main className="pt-20 px-4">
         <div className="container mx-auto max-w-4xl">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 My Profile
@@ -211,73 +211,75 @@ const Profile = () => {
                 Welcome back, {userProfile?.name || user?.email?.split('@')[0] || 'User'}
               </p>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => {
-                  setEditingCaption(null);
-                  setNewCaption({ title: '', content: '', category: '' });
-                  setImageFile(null);
-                }}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Upload Caption
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingCaption ? 'Edit Caption' : 'Upload New Caption'}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={newCaption.title}
-                      onChange={(e) => setNewCaption({ ...newCaption, title: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="content">Caption Text</Label>
-                    <Textarea
-                      id="content"
-                      value={newCaption.content}
-                      onChange={(e) => setNewCaption({ ...newCaption, content: e.target.value })}
-                      required
-                      rows={3}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={newCaption.category} onValueChange={(value) => setNewCaption({ ...newCaption, category: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="image">Background Image (Optional)</Label>
-                    <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    />
-                  </div>
-                  <Button type="submit" disabled={loading} className="w-full">
-                    {loading ? 'Saving...' : editingCaption ? 'Update Caption' : 'Upload Caption'}
+            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full sm:w-auto" onClick={() => {
+                    setEditingCaption(null);
+                    setNewCaption({ title: '', content: '', category: '' });
+                    setImageFile(null);
+                  }}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Upload Caption
                   </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingCaption ? 'Edit Caption' : 'Upload New Caption'}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={newCaption.title}
+                        onChange={(e) => setNewCaption({ ...newCaption, title: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="content">Caption Text</Label>
+                      <Textarea
+                        id="content"
+                        value={newCaption.content}
+                        onChange={(e) => setNewCaption({ ...newCaption, content: e.target.value })}
+                        required
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={newCaption.category} onValueChange={(value) => setNewCaption({ ...newCaption, category: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="image">Background Image (Optional)</Label>
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                    <Button type="submit" disabled={loading} className="w-full">
+                      {loading ? 'Saving...' : editingCaption ? 'Update Caption' : 'Upload Caption'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           {/* User's Captions */}
@@ -294,7 +296,7 @@ const Profile = () => {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   {captions.map((caption) => (
                     <div key={caption.id} className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
                       <div className="flex justify-between items-start mb-2">
@@ -342,6 +344,20 @@ const Profile = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Bottom Logout Button */}
+          <div className="mt-8 flex justify-center">
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={signOut}
+              aria-label="Logout"
+              className="w-full sm:w-auto mb-2.5"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </main>
 

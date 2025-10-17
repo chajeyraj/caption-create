@@ -149,75 +149,62 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 px-4">
-          <div className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-8">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <p className="text-white/90 text-sm tracking-wide">Developed by</p>
-              <p className="text-cyan-400 font-semibold text-lg">axzell innovations</p>
+<div className="mt-12 px-4">
+  <div className="rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 p-8 shadow-lg">
+    <div className="flex flex-col items-center text-center space-y-4">
 
-              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <a
-                    href="tel:+94768180977"
-                    className="text-white/70 hover:text-white transition-colors text-sm"
-                  >
-                    📞 +94 (76) 818-0977
-                  </a>
-                  <a
-                    href="mailto:social@axzellinnovations.com"
-                    className="text-white/70 hover:text-white transition-colors text-sm"
-                  >
-                    
-                    ✉️ social@axzellinnovations.com
-                  </a>
-                  {/* Social Links */}
-<div className="flex items-center space-x-4">
-  {/* Twitter */}
-  <a
-    href="https://twitter.com/axzellinnovate"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
-               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
-    aria-label="Twitter"
-  >
-    <Twitter className="h-4 w-4 text-white" />
-  </a>
-
-  {/* Instagram */}
-  <a
-    href="https://www.instagram.com/axzellinnovations"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
-               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
-    aria-label="Instagram"
-  >
-    <Instagram className="h-4 w-4 text-white" />
-  </a>
-
-  {/* GitHub */}
-  <a
-    href="https://github.com/axzellinnovations"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center justify-center w-9 h-9 rounded-full 
-               bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
-    aria-label="GitHub"
-  >
-    <Github className="h-4 w-4 text-white" />
-  </a>
+      {/* Developer Info */}
+<div className="flex flex-col items-center space-y-0.5">
+  <p className="text-white/80 text-sm tracking-wider uppercase">Developed by</p>
+  <p className="text-cyan-400 font-bold text-xl drop-shadow-md">axzell Innovations</p>
 </div>
-                </div>
-                
 
-                <p className="text-xs text-white/60 mt-4 md:mt-0">
-                  © 2025 axzell innovations. All rights reserved.
-                </p>
-              </div>
-            </div>
-          </div>
+
+      {/* Social Icons */}
+      <div className="flex items-center space-x-5 mt-2">
+        {[
+          { icon: <Twitter className="h-5 w-5" />, link: "https://twitter.com/axzellinnovate", label: "Twitter" },
+          { icon: <Instagram className="h-5 w-5" />, link: "https://www.instagram.com/axzellinnovations", label: "Instagram" },
+          { icon: <Github className="h-5 w-5" />, link: "https://github.com/axzellinnovations", label: "GitHub" },
+        ].map((social, i) => (
+          <a
+            key={i}
+            href={social.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={social.label}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 shadow-md"
+          >
+            {social.icon}
+          </a>
+        ))}
+      </div>
+
+      {/* Contact Info & Copyright */}
+      <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6 text-white/80">
+          <a
+            href="tel:+94768180977"
+            className="flex items-center gap-1 hover:text-white transition-colors text-sm"
+          >
+            📞 +94 (76) 818-0977
+          </a>
+          <a
+            href="mailto:social@axzellinnovations.com"
+            className="flex items-center gap-1 hover:text-white transition-colors text-sm"
+          >
+            ✉️ social@axzellinnovations.com
+          </a>
         </div>
+
+        <p className="text-xs text-white/60 mt-4 md:mt-0">
+          © 2025 Axzell Innovations. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
       </div>
     </footer>
   );

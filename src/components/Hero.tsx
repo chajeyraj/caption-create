@@ -55,30 +55,25 @@ export const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Main heading */}
-          <div className="animate-fade-in">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <div className="animate-fade-in mt-[50px]">
+            <h3 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight font-serif">
               Unleash Your 
               <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                 Words
               </span>
               Inspire the World
-            </h1>
+            </h3>
           </div>
 
           {/* Subheading */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-              Create, discover, and share the perfect captions for every moment. 
-              Join thousands of creators expressing their stories.
-            </p>
-          </div>
+      
 
           {/* CTA Buttons */}
           <div className="animate-fade-in flex flex-col sm:flex-row gap-4 justify-center mb-12" style={{ animationDelay: '0.4s' }}>
             <Button 
               variant="hero" 
               size="lg" 
-              className="group"
+              className="group w-full sm:w-auto"
               onClick={handleStartCreating}
             >
               Start Creating
@@ -87,7 +82,7 @@ export const Hero = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm w-full sm:w-auto"
               onClick={handleExplore}
             >
               Explore Captions
@@ -95,7 +90,7 @@ export const Hero = () => {
           </div>
 
           {/* Stats */}
-          <div className="animate-fade-in grid grid-cols-3 gap-8 max-w-2xl mx-auto" style={{ animationDelay: '0.6s' }}>
+          <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto w-full" style={{ animationDelay: '0.6s' }}>
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <Users className="h-6 w-6 text-white/80 mr-2" />

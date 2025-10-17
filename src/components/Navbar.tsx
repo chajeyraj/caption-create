@@ -3,8 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, BookOpen, Search, User, PenTool, LogOut, ChevronDown } from "lucide-react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Menu, X, Search, User, PenTool } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 import { SignupModal } from "./SignupModal";
 // Import hooks directly to avoid circular dependencies
@@ -16,7 +15,7 @@ export const Navbar = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { user, signOut, loading, isAdmin, userProfile } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -144,52 +143,26 @@ export const Navbar = () => {
                 {user ? (
                   <div className="flex items-center space-x-4">
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="flex items-center gap-2 pr-2">
-                          <div className="flex items-center">
-                            <User className="h-4 w-4 mr-2" />
-                            <span className="font-medium">
-                              {userProfile?.display_name || userProfile?.name || user.email?.split('@')[0] || "User"}
-                            </span>
-                          </div>
-                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-48" align="end" sideOffset={8}>
-                        <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
-                          <Link to="/profile" className="w-full">
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        {isAdmin && (
-                          <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
-                            <Link to="/admin" className="w-full">
-                              <PenTool className="mr-2 h-4 w-4" />
-                              <span>Admin</span>
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem 
-                          onClick={signOut}
-                          className="cursor-pointer px-4 py-2 text-sm text-destructive focus:text-destructive"
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          <span>Sign out</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Link to="/profile">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        aria-label="Profile"
+                        className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                      >
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
                   <Button 
                     variant="outline" 
-                    size="sm" 
+                    size="icon" 
                     onClick={handleOpenAuthModal}
-                    className="flex items-center"
+                    aria-label="Login"
+                    className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    Login
+                    <User className="h-5 w-5" />
                   </Button>
                 )}
               </>
@@ -239,46 +212,25 @@ export const Navbar = () => {
                 {!loading && (
                   <>
                     {user ? (
-                      <>
-                        <span className="text-sm text-foreground px-2 flex items-center">
-                          Welcome, {userProfile?.display_name || userProfile?.name || user.email?.split('@')[0]}
-                          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        </span>
-                        <DropdownMenu>
-                          <DropdownMenuContent className="w-48" align="end" sideOffset={8}>
-                            <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
-                              <Link to="/profile" className="w-full">
-                                <User className="mr-2 h-4 w-4" />
-                                <span>Profile</span>
-                              </Link>
-                            </DropdownMenuItem>
-                            {isAdmin && (
-                              <DropdownMenuItem asChild className="cursor-pointer px-4 py-2 text-sm">
-                                <Link to="/dashboard" className="w-full">
-                                  <PenTool className="mr-2 h-4 w-4" />
-                                  <span>Dashboard</span>
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem 
-                              onClick={signOut}
-                              className="cursor-pointer px-4 py-2 text-sm text-destructive focus:text-destructive"
-                            >
-                              <LogOut className="mr-2 h-4 w-4" />
-                              <span>Sign out</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </>
+                      <Link to="/profile" className="w-fit">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          aria-label="Profile"
+                          className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 w-10 h-10"
+                        >
+                          <User className="h-5 w-5" />
+                        </Button>
+                      </Link>
                     ) : (
                       <Button 
                         variant="outline" 
-                        size="sm" 
-                        className="w-full" 
+                        size="icon" 
+                        className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 w-10 h-10" 
                         onClick={handleOpenAuthModal}
+                        aria-label="Login"
                       >
-                        <User className="h-4 w-4 mr-2" />
-                        Login
+                        <User className="h-5 w-5" />
                       </Button>
                     )}
                   </>
