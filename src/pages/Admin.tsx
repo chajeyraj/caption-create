@@ -282,15 +282,7 @@ const Admin = () => {
                   <option value="Life">Life</option>
                 </select>
               </div>
-              <div>
-                <Label htmlFor="image">Background Image (Optional)</Label>
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                />
-              </div>
+              
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? 'Saving...' : editingCaption ? 'Update Caption' : 'Upload Caption'}
               </Button>

@@ -1,48 +1,55 @@
 import { CaptionCard } from "./CaptionCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Flame } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const featuredCaptions = [
   {
+    id: "caption-1",
     caption: "Dreams don't work unless you do. Make every moment count and turn your aspirations into achievements.",
-    author: "Sarah Miller",
+    author: "Sarah",
     category: "Motivational",
-    likes: 245,
+    likes: 11,
     isLiked: false,
   },
   {
+    id: "caption-2",
     caption: "Life is short. Smile while you still have teeth and make every day a little brighter.",
-    author: "Mike Johnson",
+    author: " shanjeevan",
     category: "Funny",
-    likes: 189,
+    likes: 15,
     isLiked: true,
   },
   {
+    id: "caption-3",
     caption: "Confidence level: Selfie with no filter. Embracing authenticity in a filtered world.",
-    author: "Emma Davis",
+    author: "harindu",
     category: "Attitude",
-    likes: 312,
+    likes: 31,
     isLiked: false,
   },
   {
+    id: "caption-4",
     caption: "Collecting moments, not things. Every sunset is a reminder that endings can be beautiful too.",
-    author: "Alex Chen",
+    author: "fadhil",
     category: "Instagram",
-    likes: 156,
+    likes: 26,
     isLiked: false,
   },
   {
+    id: "caption-5",
     caption: "Be yourself; everyone else is already taken. Your uniqueness is your superpower.",
-    author: "Luna Rodriguez",
+    author: "josuva",
     category: "WhatsApp About",
-    likes: 203,
+    likes: 20,
     isLiked: true,
   },
   {
+    id: "caption-6",
     caption: "Coffee first, adulting second. Some days you need a little more fuel for the journey.",
-    author: "David Park",
+    author: "divya",
     category: "Funny",
-    likes: 167,
+    likes: 17,
     isLiked: false,
   },
 ];
@@ -83,10 +90,18 @@ export const FeaturedSection = () => {
 
         {/* CTA */}
         <div className="text-center animate-fade-in">
-          <Button variant="gradient" size="lg" className="group">
-            Explore All Captions
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link 
+            to="/explore"
+            onClick={() => {
+              // Scroll to top when navigating to explore
+              window.scrollTo(0, 0);
+            }}
+          >
+            <Button variant="gradient" size="lg" className="group">
+              Explore All Captions
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

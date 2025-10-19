@@ -36,11 +36,11 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const categories = ['Motivational', 'Success', 'Inspiration', 'Love', 'Friendship', 'Funny', 'Wisdom', 'Life', 'தமிழ்'];
+  const categories = ['Motivational', 'Success', 'Inspiration', 'Love', 'Friendship', 'Funny', 'Wisdom', 'Life', 'தமிழ்', 'සිංහල', '中文', 'हिन्दी'];
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      navigate('/');
       return;
     }
 
@@ -264,15 +264,7 @@ const Profile = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label htmlFor="image">Background Image (Optional)</Label>
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                      />
-                    </div>
+                    
                     <Button type="submit" disabled={loading} className="w-full">
                       {loading ? 'Saving...' : editingCaption ? 'Update Caption' : 'Upload Caption'}
                     </Button>
@@ -350,7 +342,10 @@ const Profile = () => {
             <Button 
               variant="destructive" 
               size="sm" 
-              onClick={signOut}
+              onClick={async () => {
+                await signOut();
+                navigate('/');
+              }}
               aria-label="Logout"
               className="w-full sm:w-auto mb-2.5"
             >

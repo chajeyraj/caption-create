@@ -119,7 +119,11 @@ export const CategorySection = () => {
                         {count} captions
                       </span>
                     </p>
-                    <Link to={`/category/${encodeURIComponent(category.title)}`} className="group">
+                    <Link 
+                      to={`/category/${encodeURIComponent(category.title)}`} 
+                      className="group"
+                      onClick={() => window.scrollTo(0, 0)}
+                    >
                       <Button variant="outline" className="w-full hover:border-blue-600 hover:text-blue-600 transition-colors group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
                         Browse Captions
                       </Button>

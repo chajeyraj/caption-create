@@ -3,30 +3,88 @@ import { Heart, Share, BookOpen, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CaptionCardProps {
+  id: string;
   caption: string;
   author: string;
   category: string;
   likes: number;
   isLiked?: boolean;
   authorAvatar?: string;
+  onLikeUpdate?: (id: string, newLikeCount: number, isLiked: boolean) => void;
 }
 
 export const CaptionCard = ({ 
+  id,
   caption, 
   author, 
   category, 
   likes, 
   isLiked = false,
-  authorAvatar 
+  authorAvatar,
+  onLikeUpdate
 }: CaptionCardProps) => {
+  const { user } = useAuth();
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+  const handleLike = async () => {
+    if (!user) return;
+    
+    const newLikedState = !liked;
+    const newLikeCount = newLikedState ? likeCount + 1 : likeCount - 1;
+    
+    // Optimistic UI update
+    setLiked(newLikedState);
+    setLikeCount(newLikeCount);
+    onLikeUpdate?.(id, newLikeCount, newLikedState);
+    
+    try {
+      setIsUpdating(true);
+      
+      if (newLikedState) {
+        // Add like to database
+        const { error } = await supabase
+          .from('likes')
+          .upsert({
+            user_id: user.id,
+            caption_id: id,
+            created_at: new Date().toISOString()
+          });
+          
+        if (error) throw error;
+      } else {
+        // Remove like from database
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('caption_id', id);
+          
+        if (error) throw error;
+      }
+      
+      // Update caption's like count in the database
+      const { error: updateError } = await supabase
+        .from('captions')
+        .update({ likes: newLikeCount })
+        .eq('id', id);
+        
+      if (updateError) throw updateError;
+      
+    } catch (error) {
+      console.error('Error updating like:', error);
+      // Revert optimistic update if there's an error
+      setLiked(!newLikedState);
+      setLikeCount(likeCount);
+      onLikeUpdate?.(id, likeCount, !newLikedState);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleCopy = async () => {
@@ -91,11 +149,13 @@ export const CaptionCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
+                disabled={isUpdating || !user}
                 className={`transition-all duration-300 ${
                   liked 
                     ? 'text-red-500 hover:text-red-600' 
                     : 'text-muted-foreground hover:text-red-500'
                 }`}
+                title={user ? '' : 'Please sign in to like'}
               >
                 <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
                 <span className="text-xs">{likeCount}</span>

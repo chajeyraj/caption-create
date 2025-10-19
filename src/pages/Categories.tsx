@@ -61,6 +61,24 @@ const categories = [
     icon: Quote,
     color: "from-red-500 to-orange-500",
     description: "Tamil quotes and wisdom"
+  },
+  {
+    name: "සිංහල",
+    icon: Quote,
+    color: "from-blue-500 to-indigo-500",
+    description: "Sinhala quotes and wisdom"
+  },
+  {
+    name: "中文",
+    icon: Quote,
+    color: "from-red-600 to-yellow-500",
+    description: "Chinese quotes and wisdom"
+  },
+  {
+    name: "हिन्दी",
+    icon: Quote,
+    color: "from-green-600 to-yellow-500",
+    description: "Hindi quotes and wisdom"
   }
 ];
 
