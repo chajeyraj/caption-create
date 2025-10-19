@@ -24,6 +24,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          likes: number
         }
         Insert: {
           category?: string | null
@@ -34,6 +35,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          likes?: number
         }
         Update: {
           category?: string | null
@@ -44,6 +46,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          likes?: number
         }
         Relationships: []
       }
@@ -97,6 +100,40 @@ export type Database = {
           name?: string | null
         }
         Relationships: []
+      },
+      likes: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          caption_id: string
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          caption_id: string
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string
+          caption_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_caption_id_fkey"
+            columns: ["caption_id"]
+            referencedRelation: "captions"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

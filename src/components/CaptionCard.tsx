@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Heart, Share, BookOpen, User } from "lucide-react";
+import { Heart, Share, Copy, User } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -89,11 +90,18 @@ export const CaptionCard = ({
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(`"${caption}" - ${author}`);
-      // You could add a toast notification here
-      console.log('Caption copied to clipboard!');
+      await navigator.clipboard.writeText(caption);
+      toast({
+        title: "Copied!",
+        description: "Caption copied to clipboard"
+      });
     } catch (err) {
       console.error('Failed to copy caption:', err);
+      toast({
+        title: "Error",
+        description: "Failed to copy caption",
+        variant: "destructive"
+      });
     }
   };
 
@@ -176,7 +184,7 @@ export const CaptionCard = ({
                 className="text-muted-foreground hover:!text-blue-600 transition-colors" 
                 onClick={handleCopy}
               >
-                <BookOpen className="h-4 w-4" />
+                <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>

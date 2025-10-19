@@ -2,8 +2,9 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CaptionCard } from "@/components/CaptionCard";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Flame, Clock } from "lucide-react";
+import { TrendingUp, Flame, Clock, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -261,19 +262,6 @@ const Trending = () => {
                             <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/70 font-bold text-lg mr-4">
                               {index + 1}
                             </div>
-                            <div>
-                              <div className="flex items-center space-x-2">
-                                <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${trendStyles.text} ${trendStyles.bg} border ${trendStyles.border}`}>
-                                  {caption.trend.charAt(0).toUpperCase() + caption.trend.slice(1)}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  {caption.likes.toLocaleString()} likes
-                                </span>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                in {caption.category || 'General'}
-                              </p>
-                            </div>
                           </div>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -325,7 +313,53 @@ const Trending = () => {
                                 <span className="ml-1.5">{caption.likes > 1000 ? `${(caption.likes / 1000).toFixed(1)}k` : caption.likes}</span>
                               </Button>
                               
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-muted">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:bg-muted"
+                                title="Copy caption"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(caption.caption);
+                                  toast({
+                                    title: "Copied!",
+                                    description: "Caption copied to clipboard"
+                                  });
+                                }}
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-muted-foreground hover:bg-muted" 
+                                title="Download"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Create a blob with the caption text
+                                  const blob = new Blob([caption.caption], { type: 'text/plain' });
+                                  // Create a temporary anchor element
+                                  const url = URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  // Set the download filename
+                                  a.download = `caption-${caption.id}.txt`;
+                                  // Trigger the download
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  // Clean up
+                                  setTimeout(() => {
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(url);
+                                  }, 0);
+                                  // Show success message
+                                  toast({
+                                    title: "Download started",
+                                    description: "Caption downloaded as text file"
+                                  });
+                                }}
+                              >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                                   <polyline points="16 6 12 2 8 6"></polyline>

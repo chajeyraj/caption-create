@@ -18,6 +18,7 @@ interface Caption {
   category?: string;
   user_id: string;
   created_at: string;
+  likes?: number;
   profiles?: {
     display_name: string;
     email: string;
@@ -153,12 +154,13 @@ const Explore = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {paginatedCaptions.map((caption) => (
-                  <CaptionCard
+                    <CaptionCard
                     key={caption.id}
+                    id={caption.id}
                     caption={caption.content}
                     author={caption.profiles?.display_name || caption.profiles?.email || 'Unknown'}
                     category={caption.category || 'Uncategorized'}
-                    likes={0}
+                    likes={caption.likes || 0}
                     isLiked={false}
                   />
                 ))}
