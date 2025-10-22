@@ -186,6 +186,7 @@ const CategoryCaptions = () => {
                 {currentCaptions.map((captionData) => (
                   <div key={captionData.id} className="transform transition-all duration-300 hover:scale-[1.02]">
                     <CaptionCard 
+                      id={captionData.id}
                       caption={captionData.content}
                       author={captionData.profiles?.display_name || "Anonymous"}
                       category={captionData.category || "General"}

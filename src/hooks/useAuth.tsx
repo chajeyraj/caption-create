@@ -13,10 +13,11 @@ interface AuthContextType {
     display_name?: string | null;
     email: string 
   } | null;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any; data: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any; data: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,180 +29,294 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userProfile, setUserProfile] = useState<{ name: string | null; email: string; display_name?: string | null } | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
+  // Function to handle user profile data
+  interface ProfileData {
+    display_name: string | null;
+    email: string | null;
+    user_id: string;
+    created_at?: string;
+    updated_at?: string;
+  }
+
+  const handleUserProfile = async (user: User) => {
+    try {
+      // Check if profile exists - only select existing columns
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('display_name, email, user_id, created_at, updated_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // If no profile exists or there's an error, create one
+      if (!profileData || profileError?.code === 'PGRST116') {
+        const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+        const newProfile = {
+          user_id: user.id,
+          email: user.email || '',
+          display_name: displayName,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        const { error: createError } = await supabase
+          .from('profiles')
+          .upsert(newProfile)
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        // Set user profile with the new data
+        const userProfileData = {
+          name: displayName,
+          display_name: displayName,
+          email: user.email || ''
+        };
+        
+        setUserProfile(userProfileData);
+        setIsAdmin(false); // Default to non-admin
+        
+        return userProfileData;
+      }
+
+      // If we have profile data, update the state
+      const userProfileData = {
+        name: profileData.display_name || null,
+        display_name: profileData.display_name || null,
+        email: profileData.email || user.email || ''
+      };
+      
+      setUserProfile(userProfileData);
+      setIsAdmin(false); // Default to non-admin until we implement proper admin check
+
+      return userProfileData;
+    } catch (error) {
+      console.error('Error handling user profile:', error);
+      
+      // Set default values on error
+      const defaultEmail = user?.email || '';
+      const defaultProfile = {
+        name: null,
+        display_name: null,
+        email: defaultEmail
+      };
+      
+      setUserProfile(defaultProfile);
+      setIsAdmin(false);
+      
+      return defaultProfile;
+    }
+  };
+
+  // Refresh user data
+  const refreshUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await handleUserProfile(user);
+    }
+  };
+
+  // Set up auth state listener
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check admin status and fetch profile when user logs in
         if (session?.user) {
-          setTimeout(async () => {
-            // Fetch user data from users table for admin status
-            const { data: userData } = await supabase
-              .from('users')
-              .select('is_admin, email')
-              .eq('id', session.user.id)
-              .single();
-              
-            // Fetch display_name from profiles table
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('display_name, email')
-              .eq('user_id', session.user.id)
-              .single();
-              
-            setIsAdmin(userData?.is_admin || false);
-            setUserProfile({
-              name: profileData?.display_name || null,
-              display_name: profileData?.display_name || null,
-              email: userData?.email || session.user.email || ''
-            });
-          }, 0);
+          try {
+            await handleUserProfile(session.user);
+          } catch (error) {
+            console.error('Error in auth state change:', error);
+          }
         } else {
-          setIsAdmin(false);
           setUserProfile(null);
+          setIsAdmin(false);
         }
         
         setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // Fetch user data from users table for admin status
-        const { data: userData } = await supabase
-          .from('users')
-          .select('email')
-          .eq('id', session.user.id)
-          .single();
-          
-        // Fetch display_name from profiles table
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('display_name, email')
-          .eq('user_id', session.user.id)
-          .single();
-          
-        setUserProfile({
-          name: profileData?.display_name || null,
-          display_name: profileData?.display_name || null,
-          email: userData?.email || session.user.email || ''
-        });
-      } else {
-        setUserProfile(null);
+    // Initial session check
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await handleUserProfile(session.user);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkSession();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
+      setLoading(true);
+      
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
-            display_name: displayName,
+            display_name: displayName || email.split('@')[0],
           },
         },
       });
 
       if (signUpError) {
-        toast({
-          title: "Sign Up Error",
-          description: signUpError.message,
-          variant: "destructive"
-        });
-        return { error: signUpError };
+        throw signUpError;
       }
 
-      // Create a profile entry if user was created
-      if (authData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            user_id: authData.user.id,
-            display_name: displayName || null,
-            email: email,
-            updated_at: new Date().toISOString(),
-          });
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          toast({
-            title: "Error",
-            description: "Account created, but there was an error saving your profile.",
-            variant: "destructive"
-          });
-          return { error: profileError };
-        }
+      if (!authData?.user) {
+        throw new Error('No user data returned from signup');
       }
 
+      // Profile will be handled by the auth state change listener
       toast({
-        title: "Success!",
-        description: "Please check your email to confirm your account.",
+        title: 'Success!',
+        description: 'Please check your email to confirm your account.',
       });
 
       return { data: authData, error: null };
     } catch (error: any) {
-      console.error('Error during sign up:', error);
+      console.error('Sign up error:', error);
+      
+      let errorMessage = 'Failed to create account';
+      if (error.message.includes('already registered')) {
+        errorMessage = 'This email is already registered. Please try logging in instead.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Sign Up Error",
-        description: error.message || 'An unexpected error occurred',
-        variant: "destructive"
+        title: 'Sign Up Error',
+        description: errorMessage,
+        variant: 'destructive',
       });
-      return { error };
+      
+      return { 
+        error: typeof error === 'object' ? error : new Error(errorMessage),
+        data: null 
+      };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        title: "Sign In Error",
-        description: error.message,
-        variant: "destructive"
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-    }
 
-    return { data, error };
+      if (error) throw error;
+      
+      if (data?.user) {
+        await handleUserProfile(data.user);
+      }
+
+      return { data, error: null };
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      
+      let errorMessage = 'Failed to sign in. Please check your credentials.';
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: 'Sign In Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      
+      return { 
+        error: typeof error === 'object' ? error : new Error(errorMessage),
+        data: null 
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Signed Out",
-      description: "You have been successfully signed out."
-    });
-    
-    // Redirect to home page after sign out
-    const navigate = useNavigate();
-    navigate('/');
+    try {
+      setLoading(true);
+      console.log('[Auth] signOut requested');
+
+      // Sign out of current session
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+
+      // Extra guard: remove any cached Supabase session keys
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith('sb-'))
+          .forEach((key) => localStorage.removeItem(key));
+        console.log('[Auth] Cleared cached Supabase session keys');
+      } catch (storageError) {
+        console.warn('[Auth] Unable to clear cached supabase keys', storageError);
+      }
+      console.log('[Auth] Supabase signOut completed');
+
+      // Clear all local auth state
+      setUser(null);
+      setSession(null);
+      setUserProfile(null);
+      setIsAdmin(false);
+
+      // Show success message
+      toast({
+        title: 'Signed out',
+        description: 'You have been successfully signed out.',
+      });
+
+      // Navigate to home after successful sign out
+      navigate('/', { replace: true });
+
+    } catch (error: any) {
+      console.error('Error signing out:', error);
+      console.log('[Auth] signOut error details:', error);
+      toast({
+        title: 'Error',
+        description: error?.message || 'There was an error signing out. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      userProfile,
-      signUp,
-      signIn,
-      signOut,
-      isAdmin
-    }}>
+    <AuthContext.Provider 
+      value={{
+        user,
+        session,
+        loading,
+        userProfile,
+        signUp,
+        signIn,
+        signOut,
+        isAdmin,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

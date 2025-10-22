@@ -34,35 +34,86 @@ export const SignupModal = ({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password || !displayName) {
+    // Basic validation
+    if (!email || !password) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all fields',
+        title: 'Missing Information',
+        description: 'Please provide both email and password',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({
+        title: 'Invalid Email',
+        description: 'Please enter a valid email address',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Password strength validation
+    if (password.length < 8) {
+      toast({
+        title: 'Weak Password',
+        description: 'Password must be at least 8 characters long',
         variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
+
     try {
       const { error } = await signUp(email, password, displayName);
-      if (error) throw error;
+      
+      if (error) {
+        // Handle specific error cases
+        let errorMessage = 'Failed to create account';
+        
+        if (error.message.includes('already registered')) {
+          errorMessage = 'This email is already registered. Please try logging in instead.';
+        } else if (error.message.includes('password')) {
+          errorMessage = 'Please choose a stronger password';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
 
+      // Clear the form
+      setEmail('');
+      setPassword('');
+      setDisplayName('');
+      
+      // Show success message
       toast({
         title: 'Success!',
-        description:
-          'Account created successfully! Please check your email to confirm your account.',
+        description: 'Please check your email to confirm your account.',
       });
 
-      onSwitchToLogin();
+      // Switch to login after a short delay
+      setTimeout(() => {
+        onSwitchToLogin();
+      }, 3000);
+      
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to create account';
-      toast({
-        title: 'Signup Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'An unexpected error occurred during signup';
+      
+      // Only show error if it's not already shown by the signUp function
+      if (!errorMessage.includes('User already registered') && 
+          !errorMessage.includes('already in use')) {
+        toast({
+          title: 'Signup Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
