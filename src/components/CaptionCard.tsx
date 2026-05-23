@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Share, Copy, Check } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { Share, Copy, Check, Link2, MessageCircle, Twitter, X as XIcon } from "lucide-react";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { toast } from "@/components/ui/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -85,6 +85,16 @@ export const CaptionCard = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [rippleKey, setRippleKey] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+
+  /* Close share menu on outside click */
+  const handleShareMenuOutsideClick = useCallback((e: MouseEvent) => {
+    if (!shareMenuRef.current?.contains(e.target as Node)) {
+      setShowShareMenu(false);
+      document.removeEventListener('mousedown', handleShareMenuOutsideClick);
+    }
+  }, []);
 
   /* Magnetic tilt */
   const cardRef = useRef<HTMLDivElement>(null);
@@ -149,19 +159,81 @@ export const CaptionCard = ({
     }
   };
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Caption by ' + author, text: `"${caption}" - ${author}`, url: window.location.href });
-      } else {
-        await navigator.clipboard.writeText(`"${caption}" - ${author}\n\nShared from CaptionCrafter`);
-        toast({ title: 'Copied to clipboard', description: 'Sharing not supported — caption copied instead.' });
-      }
-    } catch (err) {
-      if ((err as DOMException)?.name === 'AbortError') return;
-      toast({ title: 'Share failed', description: 'Could not share caption.', variant: 'destructive' });
-    }
+  const shareUrl = `${window.location.origin}/category/${encodeURIComponent(category)}`;
+  const shareText = `"${caption}" — ${author}`;
+
+  const openShareMenu = () => {
+    setShowShareMenu((v) => !v);
+    setTimeout(() => document.addEventListener('mousedown', handleShareMenuOutsideClick), 0);
   };
+
+  const handleShare = async () => {
+    const canNativeShare = !!navigator.share && navigator.maxTouchPoints > 0;
+    if (canNativeShare) {
+      try {
+        await navigator.share({
+          title: `${category} Caption — CaptionCrafter`,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        if ((err as DOMException)?.name === 'AbortError') return;
+      }
+    }
+    openShareMenu();
+  };
+
+  const shareOptions = [
+    {
+      label: 'Copy Caption',
+      icon: Copy,
+      action: async () => {
+        try {
+          await navigator.clipboard.writeText(caption);
+          toast({ title: 'Caption copied!' });
+        } catch {
+          toast({ title: 'Failed to copy', variant: 'destructive' } as Parameters<typeof toast>[0]);
+        }
+        setShowShareMenu(false);
+      },
+    },
+    {
+      label: 'Copy Link',
+      icon: Link2,
+      action: async () => {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          toast({ title: 'Link copied!' });
+        } catch {
+          toast({ title: 'Failed to copy', variant: 'destructive' } as Parameters<typeof toast>[0]);
+        }
+        setShowShareMenu(false);
+      },
+    },
+    {
+      label: 'Share on X / Twitter',
+      icon: Twitter,
+      action: () => {
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+          '_blank', 'noopener'
+        );
+        setShowShareMenu(false);
+      },
+    },
+    {
+      label: 'Share on WhatsApp',
+      icon: MessageCircle,
+      action: () => {
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`,
+          '_blank', 'noopener'
+        );
+        setShowShareMenu(false);
+      },
+    },
+  ];
 
   const hue = categoryHue(category);
 
@@ -273,13 +345,47 @@ export const CaptionCard = ({
             </button>
 
             {/* Share */}
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-150 hover:scale-105 active:scale-95 hover:text-foreground"
-              style={{ color: 'hsl(260,8%,52%)' }}
-            >
-              <Share className="h-4 w-4" />
-            </button>
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-150 hover:scale-105 active:scale-95 hover:text-foreground"
+                style={{ color: showShareMenu ? 'hsl(38,90%,60%)' : 'hsl(260,8%,52%)' }}
+              >
+                <Share className="h-4 w-4" />
+              </button>
+
+              {/* Share dropdown */}
+              {showShareMenu && (
+                <div
+                  className="absolute bottom-full left-0 mb-2 w-52 rounded-xl overflow-hidden z-50 animate-spring-in"
+                  style={{
+                    background: 'hsl(235,22%,13%)',
+                    border: '1px solid hsl(240,12%,24%)',
+                    boxShadow: '0 16px 48px hsl(0 0% 0% / 0.55)',
+                  }}
+                >
+                  <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid hsl(240,12%,20%)' }}>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(40,20%,55%)' }}>Share</span>
+                    <button onClick={() => setShowShareMenu(false)} style={{ color: 'hsl(260,8%,48%)' }}>
+                      <XIcon className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {shareOptions.map(({ label, icon: Icon, action }) => (
+                    <button
+                      key={label}
+                      onClick={action}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150"
+                      style={{ color: 'hsl(40,20%,72%)' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(40 20% 92% / 0.05)'; (e.currentTarget as HTMLElement).style.color = 'hsl(40,20%,92%)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(40,20%,72%)'; }}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Copy */}
             <button
