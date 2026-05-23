@@ -25,6 +25,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, displayName?: string) => Promise<AuthOperationResult<SignUpResultData>>;
   signIn: (email: string, password: string) => Promise<AuthOperationResult<SignInResultData>>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
 }
@@ -256,6 +257,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resetPassword = async (email: string): Promise<{ error: Error | null }> => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      });
+      if (error) throw error;
+      return { error: null };
+    } catch (error: unknown) {
+      return { error: error instanceof Error ? error : new Error('Failed to send reset email') };
+    }
+  };
+
   const signOut = async (): Promise<void> => {
     try {
       setLoading(true);
@@ -311,6 +324,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signUp,
         signIn,
         signOut,
+        resetPassword,
         isAdmin,
         refreshUser,
       }}

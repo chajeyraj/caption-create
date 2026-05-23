@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Github, Twitter, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Footer = () => {
@@ -79,32 +78,6 @@ export const Footer = () => {
               Unleash your words, inspire the world. Create and share the perfect captions for every moment.
             </p>
 
-            <div className="flex items-center gap-3">
-              {[Twitter, Instagram, Github].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="h-9 w-9 flex items-center justify-center rounded-full transition-all duration-200 hover:scale-110 hover:-translate-y-0.5"
-                  style={{
-                    background: 'hsl(40 20% 92% / 0.06)',
-                    border: '1px solid hsl(40 20% 92% / 0.1)',
-                    color: 'hsl(40, 20%, 60%)',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = 'hsl(38 90% 54% / 0.12)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(38 90% 54% / 0.3)';
-                    (e.currentTarget as HTMLElement).style.color = 'hsl(38, 90%, 60%)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = 'hsl(40 20% 92% / 0.06)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(40 20% 92% / 0.1)';
-                    (e.currentTarget as HTMLElement).style.color = 'hsl(40, 20%, 60%)';
-                  }}
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Links grid */}
@@ -132,6 +105,7 @@ export const Footer = () => {
                     <li key={to}>
                       <Link
                         to={to}
+                        onClick={() => window.scrollTo({ top: 0 })}
                         className="text-sm transition-colors duration-200"
                         style={{ color: 'hsl(260, 8%, 52%)' }}
                         onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(38, 90%, 60%)')}
@@ -172,33 +146,6 @@ export const Footer = () => {
                 </ul>
               </div>
 
-              {/* Support */}
-              <div>
-                <h3
-                  className="font-semibold text-sm mb-4 uppercase tracking-widest pl-3"
-                  style={{
-                    color: 'hsl(40, 20%, 92%)',
-                    borderLeft: '2px solid hsl(38, 90%, 54%)',
-                  }}
-                >
-                  Support
-                </h3>
-                <ul className="space-y-2.5">
-                  {["Help Center", "Contact Us", "Privacy Policy", "Terms of Service"].map((text, i) => (
-                    <li key={i}>
-                      <a
-                        href="#"
-                        className="text-sm transition-colors duration-200"
-                        style={{ color: 'hsl(260, 8%, 52%)' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(38, 90%, 60%)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'hsl(260, 8%, 52%)')}
-                      >
-                        {text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -220,42 +167,8 @@ export const Footer = () => {
                   Developed by
                 </p>
                 <p className="text-xl font-bold font-display text-gradient-amber">
-                  axzell Innovations
+                  axzell innovations
                 </p>
-              </div>
-
-              {/* Social icons */}
-              <div className="flex items-center gap-4">
-                {[
-                  { icon: <Twitter className="h-4 w-4" />, href: "https://twitter.com/axzellinnovate" },
-                  { icon: <Instagram className="h-4 w-4" />, href: "https://www.instagram.com/axzellinnovations" },
-                  { icon: <Github className="h-4 w-4" />, href: "https://github.com/axzellinnovations" },
-                ].map((s, i) => (
-                  <a
-                    key={i}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-10 w-10 flex items-center justify-center rounded-full transition-all duration-200 hover:scale-110 hover:-translate-y-0.5"
-                    style={{
-                      background: 'hsl(40 20% 92% / 0.08)',
-                      border: '1px solid hsl(40 20% 92% / 0.12)',
-                      color: 'hsl(40, 20%, 65%)',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = 'hsl(38 90% 54% / 0.15)';
-                      (e.currentTarget as HTMLElement).style.borderColor = 'hsl(38 90% 54% / 0.35)';
-                      (e.currentTarget as HTMLElement).style.color = 'hsl(38, 90%, 60%)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = 'hsl(40 20% 92% / 0.08)';
-                      (e.currentTarget as HTMLElement).style.borderColor = 'hsl(40 20% 92% / 0.12)';
-                      (e.currentTarget as HTMLElement).style.color = 'hsl(40, 20%, 65%)';
-                    }}
-                  >
-                    {s.icon}
-                  </a>
-                ))}
               </div>
 
               {/* Contact + copyright */}
@@ -269,15 +182,15 @@ export const Footer = () => {
                     📞 +94 (76) 818-0977
                   </a>
                   <a
-                    href="mailto:social@axzellinnovations.com"
+                    href="mailto:social@axzellin.com"
                     className="text-xs transition-colors duration-200 hover:text-foreground"
                     style={{ color: 'hsl(260, 8%, 48%)' }}
                   >
-                    ✉️ social@axzellinnovations.com
+                    ✉️ social@axzellin.com
                   </a>
                 </div>
                 <p className="text-xs" style={{ color: 'hsl(260, 8%, 38%)' }}>
-                  © {new Date().getFullYear()} Axzell Innovations. All rights reserved.
+                  © {new Date().getFullYear()} axzell innovations. All rights reserved.
                 </p>
               </div>
             </div>
