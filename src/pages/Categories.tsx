@@ -1,11 +1,10 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-
-import { useEffect, useState } from "react";
+import { VLink } from "@/components/VLink";
 import { fetchCategoryCounts } from "@/utils/categoryCounts";
 import { CATEGORY_META } from "@/constants/categories";
+import { ArrowRight } from "lucide-react";
 
 const Categories = () => {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
@@ -18,9 +17,8 @@ const Categories = () => {
       setLoading(true);
       setError(null);
       try {
-        const counts = await fetchCategoryCounts();
-        setCategoryCounts(counts);
-      } catch (err) {
+        setCategoryCounts(await fetchCategoryCounts());
+      } catch {
         setError("Failed to load category counts.");
       } finally {
         setLoading(false);
@@ -30,65 +28,118 @@ const Categories = () => {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ background: 'hsl(235,22%,8%)' }}>
       <Navbar />
-      <main className="pt-20 px-4">
+
+      <main className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-6xl">
+
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
+          <div className="text-center mb-10 sm:mb-14">
+            <h1
+              className="font-display font-bold mb-3"
+              style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'hsl(40,20%,92%)' }}
+            >
               Browse Categories
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-sm sm:text-lg max-w-2xl mx-auto" style={{ color: 'hsl(260,8%,55%)' }}>
               Find the perfect caption for every moment and mood
             </p>
           </div>
 
-          {/* Loading/Error States */}
           {loading ? (
-            <div className="text-center py-12">Loading categories...</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="relative overflow-hidden rounded-2xl"
+                  style={{ height: '160px', background: 'hsl(235,18%,10%)', border: '1px solid hsl(240,12%,18%)' }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-shimmer-slide" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
-            <div className="text-center text-red-500 py-12">{error}</div>
+            <div className="text-center py-12" style={{ color: 'hsl(0,72%,55%)' }}>{error}</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {CATEGORY_META.map((category, index) => {
                 const Icon = category.icon;
                 const count = categoryCounts[category.name] || 0;
+
                 return (
-                  <Link
+                  <VLink
                     key={category.name}
                     to={`/category/${encodeURIComponent(category.name)}`}
-                    className="block"
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="group block"
+                    style={{ animationDelay: `${index * 40}ms` }}
                   >
-                    <Card
-                      className={`group cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg overflow-hidden animate-fade-in will-change-transform`}
-                      style={{ animationDelay: `${index * 100}ms` }}
+                    <div
+                      className="relative overflow-hidden rounded-2xl p-3 sm:p-6 transition-all duration-300 cursor-pointer h-full"
+                      style={{
+                        background: 'hsl(235,18%,10%)',
+                        border: '1px solid hsl(240,12%,18%)',
+                        boxShadow: '0 4px 20px hsl(0 0% 0% / 0.25)',
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.transform = 'translateY(-4px) scale(1.01)';
+                        el.style.boxShadow = '0 16px 48px hsl(0 0% 0% / 0.45), 0 0 0 1px hsl(240,12%,24%)';
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.transform = 'translateY(0) scale(1)';
+                        el.style.boxShadow = '0 4px 20px hsl(0 0% 0% / 0.25)';
+                      }}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
-                      <CardContent className="p-6 text-center relative z-10">
+                      {/* Icon + count */}
+                      <div className="flex items-start justify-between mb-2 sm:mb-4">
                         <div
-                          className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.gradient} flex items-center justify-center group-hover:scale-110 group-hover:animate-wobble transition-all duration-300 shadow-md`}
+                          className={`inline-flex items-center justify-center h-9 w-9 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br ${category.gradient} shadow-md transition-all duration-300 group-hover:scale-110 group-hover:animate-wobble`}
                         >
-                          <Icon className="h-8 w-8 text-white" />
+                          <Icon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                         </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                          {category.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {category.description}
-                        </p>
-                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-black/20 text-foreground/80">
-                          {count} {count === 1 ? 'caption' : 'captions'}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                        <span
+                          className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full"
+                          style={{
+                            background: 'hsl(40 20% 92% / 0.06)',
+                            color: 'hsl(260,8%,52%)',
+                            border: '1px solid hsl(40 20% 92% / 0.09)',
+                          }}
+                        >
+                          {count}
+                          <span className="hidden sm:inline"> captions</span>
+                        </span>
+                      </div>
+
+                      <h3
+                        className="font-display font-semibold text-sm sm:text-lg mb-1 sm:mb-1.5 transition-colors duration-200"
+                        style={{ color: 'hsl(40,20%,88%)' }}
+                      >
+                        {category.name}
+                      </h3>
+                      <p className="hidden sm:block text-sm leading-relaxed mb-4" style={{ color: 'hsl(260,8%,50%)' }}>
+                        {category.description}
+                      </p>
+
+                      <div
+                        className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium transition-colors duration-200 mt-2 sm:mt-0"
+                        style={{ color: 'hsl(38,90%,56%)' }}
+                      >
+                        <span className="hidden sm:inline">Browse Captions</span>
+                        <span className="sm:hidden">Browse</span>
+                        <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  </VLink>
                 );
               })}
             </div>
           )}
         </div>
       </main>
+
       <Footer />
     </div>
   );

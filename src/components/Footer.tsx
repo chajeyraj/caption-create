@@ -56,8 +56,8 @@ export const Footer = () => {
         <div className="absolute inset-0 bg-grid-dots opacity-40" />
       </div>
 
-      <div className="container mx-auto px-6 py-16 relative z-10 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 lg:gap-8">
 
           {/* Brand */}
           <div className="md:col-span-2 lg:col-span-1 space-y-5">
@@ -109,7 +109,7 @@ export const Footer = () => {
 
           {/* Links grid */}
           <div className="md:col-span-2 lg:col-span-3">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
 
               {/* Quick Links */}
               <div>
@@ -204,9 +204,9 @@ export const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14">
+        <div className="mt-10 sm:mt-14">
           <div
-            className="rounded-2xl p-8"
+            className="rounded-2xl p-5 sm:p-8"
             style={{
               background: 'hsl(40 20% 92% / 0.03)',
               border: '1px solid hsl(40 20% 92% / 0.08)',
@@ -259,8 +259,8 @@ export const Footer = () => {
               </div>
 
               {/* Contact + copyright */}
-              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
                   <a
                     href="tel:+94768180977"
                     className="text-xs transition-colors duration-200 hover:text-foreground"

@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import { AuthProvider } from "./hooks/useAuth";
 import { PageTransition } from "./components/PageTransition";
 import { PageProgress } from "./components/PageProgress";
+import { ScrollRevealInit } from "./components/ScrollRevealInit";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <PageProgress />
+            <ScrollRevealInit />
             <PageTransition>
               <Routes>
                 <Route path="/" element={<Index />} />

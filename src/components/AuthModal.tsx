@@ -125,16 +125,16 @@ export const AuthModal = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 py-8 sm:px-6">
-      {/* Backdrop */}
+      {/* Backdrop — spring fade-in */}
       <div
-        className="fixed inset-0"
-        style={{ background: 'hsl(232, 35%, 5% / 0.85)', backdropFilter: 'blur(8px)' }}
+        className="fixed inset-0 animate-spring-backdrop"
+        style={{ background: 'hsl(232, 35%, 5% / 0.85)' }}
         onClick={onClose}
       />
 
-      {/* Modal */}
+      {/* Modal — spring physics entrance */}
       <div
-        className="relative z-[10000] w-full max-w-md rounded-2xl overflow-hidden animate-fade-in"
+        className="relative z-[10000] w-full max-w-md rounded-2xl overflow-hidden animate-spring-in"
         style={{
           background: 'hsl(235, 20%, 10%)',
           border: '1px solid hsl(240, 12%, 20%)',

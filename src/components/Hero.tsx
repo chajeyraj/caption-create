@@ -1,17 +1,34 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Users, PenLine } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/AuthModal';
 import { useInView } from '@/hooks/useInView';
 import { useCountUp } from '@/hooks/useCountUp';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
+import { useViewNavigate } from '@/hooks/useViewNavigate';
 
 const CYCLING_WORDS = ['Captions', 'Quotes', 'Stories', 'Vibes'];
 
+/* Staggered word entrance — each word clips up from a mask */
+const StaggeredHeading = ({ text, delay = 0 }: { text: string; delay?: number }) => (
+  <>
+    {text.split(' ').map((word, i) => (
+      <span key={i} className="word-reveal-mask">
+        <span
+          className="word-reveal-inner"
+          style={{ animationDelay: `${delay + i * 70}ms` }}
+        >
+          {word}
+        </span>
+        {i < text.split(' ').length - 1 && ' '}
+      </span>
+    ))}
+  </>
+);
+
 export const Hero = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const viewNavigate = useViewNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordVisible, setWordVisible] = useState(true);
@@ -28,14 +45,14 @@ export const Hero = () => {
   }, []);
 
   const handleStartCreating = () => {
-    if (user) navigate('/profile');
+    if (user) viewNavigate('/profile');
     else setShowAuthModal(true);
   };
 
   const handleAuthSuccess = useCallback(() => {
     setShowAuthModal(false);
-    navigate('/profile');
-  }, [navigate]);
+    viewNavigate('/profile');
+  }, [viewNavigate]);
 
   const [statsRef, statsInView] = useInView<HTMLDivElement>({ threshold: 0.5 });
   const creatorsCount = useCountUp(10, 1000, statsInView);
@@ -61,7 +78,6 @@ export const Hero = () => {
           className="absolute -bottom-16 right-1/4 w-[360px] h-[360px] rounded-full blur-[90px] animate-float"
           style={{ background: 'radial-gradient(circle, hsl(38 90% 54% / 0.1) 0%, transparent 70%)', animationDelay: '4s', animationDuration: '5s' }}
         />
-        {/* Dot grid */}
         <div className="absolute inset-0 bg-grid-dots opacity-60" />
       </div>
 
@@ -79,16 +95,16 @@ export const Hero = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center max-w-4xl mx-auto pt-24 pb-20">
+        <div className="text-center max-w-4xl mx-auto pt-24 pb-12 sm:pt-28 sm:pb-20">
 
           {/* Badge */}
-          <div className="animate-fade-in mb-8" style={{ animationDelay: '0.05s' }}>
+          <div className="animate-fade-in mb-6 sm:mb-8" style={{ animationDelay: '0.05s' }}>
             <span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-widest uppercase"
               style={{
                 background: 'hsl(38 90% 54% / 0.1)',
                 border: '1px solid hsl(38 90% 54% / 0.25)',
-                color: 'hsl(38, 85%, 68%)',
+                color: 'hsl(38,85%,68%)',
               }}
             >
               <Sparkles className="h-3 w-3" />
@@ -96,20 +112,20 @@ export const Hero = () => {
             </span>
           </div>
 
-          {/* Headline with kinetic word */}
-          <div className="animate-fade-in mb-5" style={{ animationDelay: '0.15s' }}>
+          {/* Headline — staggered word entrance */}
+          <div className="mb-4 sm:mb-5" style={{ animationDelay: '0.1s' }}>
             <h1
-              className="font-display font-bold leading-[1.08] tracking-tight"
-              style={{ color: 'hsl(40, 20%, 92%)', fontSize: 'clamp(2.8rem, 8vw, 5.5rem)' }}
+              className="font-display font-bold leading-[1.08] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem]"
+              style={{ color: 'hsl(40,20%,92%)' }}
             >
-              Craft Perfect
+              <StaggeredHeading text="Craft Perfect" delay={80} />
               <span className="block mt-1">
+                {/* Kinetic cycling word */}
                 <span
                   className="inline-block transition-all duration-[280ms] ease-out text-gradient-amber"
                   style={{
                     opacity: wordVisible ? 1 : 0,
                     transform: wordVisible ? 'translateY(0) scale(1)' : 'translateY(-12px) scale(0.97)',
-                    minWidth: '280px',
                   }}
                 >
                   {CYCLING_WORDS[wordIndex]}
@@ -118,28 +134,28 @@ export const Hero = () => {
             </h1>
           </div>
 
-          {/* Subheading with typewriter cursor */}
-          <div className="animate-fade-in mb-10" style={{ animationDelay: '0.3s' }}>
+          {/* Subtitle with typewriter cursor */}
+          <div className="animate-fade-in mb-8 sm:mb-10" style={{ animationDelay: '0.45s' }}>
             <p
-              className="text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed font-ui"
-              style={{ color: 'hsl(260, 8%, 60%)' }}
+              className="text-sm sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-ui px-2 sm:px-0"
+              style={{ color: 'hsl(260,8%,60%)' }}
             >
               Browse thousands of captions across every mood, category, and language
               <span
                 className="inline-block w-0.5 h-5 ml-1 align-middle rounded-sm animate-blink"
-                style={{ background: 'hsl(38, 90%, 54%)' }}
+                style={{ background: 'hsl(38,90%,54%)' }}
               />
             </p>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="animate-fade-in flex flex-col sm:flex-row gap-4 justify-center mb-16" style={{ animationDelay: '0.45s' }}>
+          {/* CTAs */}
+          <div className="animate-fade-in flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16" style={{ animationDelay: '0.6s' }}>
             <button
               onClick={handleStartCreating}
-              className="group inline-flex items-center justify-center gap-2.5 px-8 h-13 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] animate-glow-pulse"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
-                color: 'hsl(232, 20%, 7%)',
+                background: 'linear-gradient(135deg, hsl(38,90%,54%), hsl(25,90%,58%))',
+                color: 'hsl(232,20%,7%)',
                 boxShadow: '0 0 30px hsl(38 90% 54% / 0.35), 0 4px 16px hsl(0 0% 0% / 0.3)',
                 minHeight: '52px',
                 fontFamily: 'DM Sans, sans-serif',
@@ -149,12 +165,12 @@ export const Hero = () => {
               Start Creating
             </button>
             <button
-              onClick={() => navigate('/explore')}
-              className="inline-flex items-center justify-center gap-2 px-8 h-13 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() => viewNavigate('/explore')}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: 'hsl(40 20% 92% / 0.05)',
                 border: '1px solid hsl(40 20% 92% / 0.15)',
-                color: 'hsl(40, 20%, 80%)',
+                color: 'hsl(40,20%,80%)',
                 minHeight: '52px',
                 fontFamily: 'DM Sans, sans-serif',
               }}
@@ -171,10 +187,10 @@ export const Hero = () => {
             </button>
           </div>
 
-          {/* Stats row */}
-          <div ref={statsRef} className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          {/* Stats with slot-machine numbers */}
+          <div ref={statsRef} className="animate-fade-in" style={{ animationDelay: '0.75s' }}>
             <div
-              className="inline-flex flex-col sm:flex-row rounded-2xl overflow-hidden"
+              className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/[.07] rounded-2xl overflow-hidden w-full sm:w-auto sm:inline-flex"
               style={{
                 border: '1px solid hsl(40 20% 92% / 0.08)',
                 background: 'hsl(40 20% 92% / 0.03)',
@@ -188,21 +204,15 @@ export const Hero = () => {
               ].map(({ icon: Icon, count, label }, i) => (
                 <div
                   key={i}
-                  className="flex flex-col items-center px-10 py-6"
-                  style={{
-                    borderRight: i < 2 ? '1px solid hsl(40 20% 92% / 0.07)' : 'none',
-                  }}
+                  className="flex flex-col items-center px-6 py-4 sm:px-10 sm:py-6"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon className="h-4 w-4" style={{ color: 'hsl(38, 90%, 60%)' }} />
-                    <span
-                      className="text-2xl font-bold font-display"
-                      style={{ color: 'hsl(40, 20%, 92%)' }}
-                    >
-                      {count}+
+                    <Icon className="h-4 w-4" style={{ color: 'hsl(38,90%,60%)' }} />
+                    <span className="text-2xl font-bold font-display" style={{ color: 'hsl(40,20%,92%)' }}>
+                      <AnimatedNumber value={count} suffix="+" />
                     </span>
                   </div>
-                  <p className="text-xs tracking-wide uppercase" style={{ color: 'hsl(260, 8%, 50%)' }}>
+                  <p className="text-xs tracking-wide uppercase" style={{ color: 'hsl(260,8%,50%)' }}>
                     {label}
                   </p>
                 </div>

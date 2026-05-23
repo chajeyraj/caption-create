@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks";
 import { Input } from "@/components/ui/input";
 import { Menu, X, Search, User, PenLine } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { VLink } from "@/components/VLink";
+import { useViewNavigate } from "@/hooks/useViewNavigate";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,7 +15,7 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useViewNavigate();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16 relative">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+          <VLink to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/img/logo.PNG"
               alt="CaptionCrafter Logo"
@@ -92,12 +94,12 @@ export const Navbar = () => {
             >
               Caption<span style={{ color: 'hsl(38, 90%, 58%)' }}>Crafter</span>
             </span>
-          </Link>
+          </VLink>
 
           {/* Desktop nav — centered */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map(({ to, label }) => (
-              <Link
+              <VLink
                 key={to}
                 to={to}
                 className="relative pb-0.5 text-sm font-medium transition-colors duration-200 group"
@@ -118,7 +120,7 @@ export const Navbar = () => {
                     background: 'linear-gradient(90deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
                   }}
                 />
-              </Link>
+              </VLink>
             ))}
           </div>
 
@@ -127,7 +129,7 @@ export const Navbar = () => {
             {!loading && (
               <>
                 {user ? (
-                  <Link to="/profile">
+                  <VLink to="/profile">
                     <button
                       aria-label="Profile"
                       className="h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
@@ -139,7 +141,7 @@ export const Navbar = () => {
                     >
                       <User className="h-4 w-4" />
                     </button>
-                  </Link>
+                  </VLink>
                 ) : (
                   <button
                     onClick={handleOpenAuthModal}
@@ -189,7 +191,7 @@ export const Navbar = () => {
 
               {/* Links */}
               {navLinks.map(({ to, label }) => (
-                <Link
+                <VLink
                   key={to}
                   to={to}
                   className="py-2 text-sm font-medium transition-colors"
@@ -197,20 +199,20 @@ export const Navbar = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {label}
-                </Link>
+                </VLink>
               ))}
 
               <div className="flex flex-col gap-3 pt-3" style={{ borderTop: '1px solid hsl(240, 12%, 18%)' }}>
                 {!loading && (
                   user ? (
-                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                    <VLink to="/profile" onClick={() => setIsMenuOpen(false)}>
                       <button
                         className="h-9 w-9 rounded-full flex items-center justify-center transition-all"
                         style={{ border: '1px solid hsl(38 90% 54% / 0.4)', background: 'hsl(38 90% 54% / 0.08)', color: 'hsl(38, 90%, 62%)' }}
                       >
                         <User className="h-4 w-4" />
                       </button>
-                    </Link>
+                    </VLink>
                   ) : (
                     <button
                       onClick={handleOpenAuthModal}
