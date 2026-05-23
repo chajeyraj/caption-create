@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Eye, EyeOff } from 'lucide-react';
+import { X, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 
@@ -27,7 +26,6 @@ export const AuthModal = ({
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right');
   const [contentKey, setContentKey] = useState(0);
 
-  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -36,7 +34,6 @@ export const AuthModal = ({
 
   const { signIn, signUp } = useAuth();
 
-  // Reset to initialMode whenever the modal opens
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
@@ -47,7 +44,6 @@ export const AuthModal = ({
     }
   }, [isOpen, initialMode]);
 
-  // Prevent body scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -59,10 +55,7 @@ export const AuthModal = ({
     setSlideDir(next === 'signup' ? 'left' : 'right');
     setMode(next);
     setContentKey((k) => k + 1);
-    setEmail('');
-    setPassword('');
-    setDisplayName('');
-    setShowPassword(false);
+    setEmail(''); setPassword(''); setDisplayName(''); setShowPassword(false);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -78,11 +71,7 @@ export const AuthModal = ({
       onClose();
       onAuthSuccess?.();
     } catch (error) {
-      toast({
-        title: 'Login Failed',
-        description: error instanceof Error ? error.message : 'Failed to sign in',
-        variant: 'destructive',
-      });
+      toast({ title: 'Login Failed', description: error instanceof Error ? error.message : 'Failed to sign in', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -106,9 +95,6 @@ export const AuthModal = ({
     try {
       const { data, error } = await signUp(email, password, displayName);
       if (error) throw error;
-
-      // When Supabase auto-confirms the email, a session is returned and the user
-      // is already signed in. Otherwise they need to confirm via email.
       if (data?.session) {
         toast({ title: 'Welcome!', description: 'Your account is ready.' });
         onClose();
@@ -131,160 +117,204 @@ export const AuthModal = ({
 
   const slideClass = slideDir === 'left' ? 'animate-slide-from-right' : 'animate-slide-from-left';
 
+  const inputStyle = {
+    background: 'hsl(240, 12%, 13%)',
+    border: '1px solid hsl(240, 12%, 22%)',
+    color: 'hsl(40, 20%, 88%)',
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 py-8 sm:px-6">
-      {/* Backdrop — never unmounts during mode switch */}
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gradient-to-br from-black/60 to-black/80 backdrop-blur-sm"
+        className="fixed inset-0"
+        style={{ background: 'hsl(232, 35%, 5% / 0.85)', backdropFilter: 'blur(8px)' }}
         onClick={onClose}
       />
 
-      {/* Modal shell — never unmounts during mode switch */}
-      <div className="relative z-[10000] w-full max-w-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl text-white backdrop-blur-xl overflow-hidden animate-fade-in">
-        {/* Close button */}
+      {/* Modal */}
+      <div
+        className="relative z-[10000] w-full max-w-md rounded-2xl overflow-hidden animate-fade-in"
+        style={{
+          background: 'hsl(235, 20%, 10%)',
+          border: '1px solid hsl(240, 12%, 20%)',
+          boxShadow: '0 24px 80px hsl(0 0% 0% / 0.6), 0 0 0 1px hsl(38 90% 54% / 0.06)',
+        }}
+      >
+        {/* Amber top accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent, hsl(38, 90%, 54%), hsl(271, 60%, 65%), transparent)' }}
+        />
+
+        {/* Ambient glow inside modal */}
+        <div
+          className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, hsl(38 90% 54% / 0.07) 0%, transparent 70%)' }}
+        />
+
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-md p-1.5 hover:bg-white/10 transition-colors"
+          className="absolute right-4 top-4 z-10 h-8 w-8 flex items-center justify-center rounded-lg transition-all duration-200 hover:scale-105"
+          style={{ background: 'hsl(40 20% 92% / 0.06)', color: 'hsl(40, 20%, 60%)' }}
         >
-          <X className="h-5 w-5 text-white/80 hover:text-white" />
+          <X className="h-4 w-4" />
         </button>
 
-        {/* Sliding content — keyed on mode so it re-mounts and plays the slide animation */}
-        <div key={contentKey} className={`p-8 ${slideClass}`}>
+        {/* Sliding content */}
+        <div key={contentKey} className={`p-8 relative z-10 ${slideClass}`}>
           {mode === 'login' ? (
             <>
-              <div className="text-center space-y-1 mb-8">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl mb-4"
+                  style={{ background: 'hsl(38 90% 54% / 0.12)', border: '1px solid hsl(38 90% 54% / 0.2)' }}>
+                  <Sparkles className="h-5 w-5" style={{ color: 'hsl(38, 90%, 60%)' }} />
+                </div>
+                <h2 className="font-display font-bold text-3xl mb-1 text-gradient-amber-violet">
                   Welcome Back
                 </h2>
-                <p className="text-sm text-white/70">Enter your credentials to access your account</p>
+                <p className="text-sm" style={{ color: 'hsl(260, 8%, 52%)' }}>
+                  Enter your credentials to continue
+                </p>
               </div>
 
               <form onSubmit={handleLogin} className="space-y-5">
                 <div>
-                  <label htmlFor="login-email" className="block text-sm font-medium text-white/80 mb-1">Email</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                    Email
+                  </label>
                   <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 focus-visible:ring-2 focus-visible:ring-cyan-400"
-                    autoComplete="email"
+                    type="email" placeholder="name@example.com"
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading} autoComplete="email"
+                    className="w-full placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(38,90%,54%)]"
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="login-password" className="text-sm font-medium text-white/80">Password</label>
-                    <button type="button" className="text-xs text-cyan-400 hover:underline">Forgot password?</button>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                      Password
+                    </label>
+                    <button type="button" className="text-xs hover:underline transition-colors" style={{ color: 'hsl(38, 90%, 60%)' }}>
+                      Forgot password?
+                    </button>
                   </div>
                   <div className="relative">
                     <Input
-                      id="login-password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isLoading}
-                      className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 pr-10 focus-visible:ring-2 focus-visible:ring-cyan-400"
-                      autoComplete="current-password"
+                      type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+                      value={password} onChange={(e) => setPassword(e.target.value)}
+                      disabled={isLoading} autoComplete="current-password"
+                      className="w-full pr-10 placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(38,90%,54%)]"
+                      style={inputStyle}
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute inset-y-0 right-3 flex items-center text-white/60 hover:text-white transition-colors"
+                      className="absolute inset-y-0 right-3 flex items-center transition-colors hover:text-foreground"
+                      style={{ color: 'hsl(260, 8%, 45%)' }}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
 
-                <Button
+                <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-cyan-500/30 transition-all duration-300"
-                  size="lg"
                   disabled={isLoading}
+                  className="w-full h-11 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
+                    color: 'hsl(232, 20%, 7%)',
+                    boxShadow: '0 4px 20px hsl(38 90% 54% / 0.3)',
+                  }}
                 >
                   {isLoading ? 'Signing in…' : 'Sign In'}
-                </Button>
+                </button>
               </form>
 
-              <p className="text-center text-sm text-white/70 mt-6">
+              <p className="text-center text-sm mt-6" style={{ color: 'hsl(260, 8%, 50%)' }}>
                 Don't have an account?{' '}
-                <button type="button" className="font-medium text-cyan-400 hover:underline" onClick={() => switchTo('signup')}>
+                <button type="button" className="font-medium hover:underline transition-colors" style={{ color: 'hsl(38, 90%, 60%)' }} onClick={() => switchTo('signup')}>
                   Create one
                 </button>
               </p>
             </>
           ) : (
             <>
-              <div className="text-center space-y-1 mb-8">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  Create an Account
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl mb-4"
+                  style={{ background: 'hsl(271 60% 65% / 0.12)', border: '1px solid hsl(271 60% 65% / 0.2)' }}>
+                  <Sparkles className="h-5 w-5" style={{ color: 'hsl(271, 60%, 70%)' }} />
+                </div>
+                <h2 className="font-display font-bold text-3xl mb-1 text-gradient-amber-violet">
+                  Create Account
                 </h2>
-                <p className="text-sm text-white/70">Enter your details to get started</p>
+                <p className="text-sm" style={{ color: 'hsl(260, 8%, 52%)' }}>
+                  Join thousands of creators today
+                </p>
               </div>
 
-              <form onSubmit={handleSignup} className="space-y-5">
+              <form onSubmit={handleSignup} className="space-y-4">
                 <div>
-                  <label htmlFor="signup-name" className="block text-sm font-medium text-white/80 mb-1">Display Name</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                    Display Name
+                  </label>
                   <Input
-                    id="signup-name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 focus-visible:ring-2 focus-visible:ring-cyan-400"
-                    autoComplete="name"
+                    type="text" placeholder="John Doe"
+                    value={displayName} onChange={(e) => setDisplayName(e.target.value)}
+                    disabled={isLoading} autoComplete="name"
+                    className="w-full placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(271,60%,65%)]"
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="signup-email" className="block text-sm font-medium text-white/80 mb-1">Email</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                    Email
+                  </label>
                   <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 focus-visible:ring-2 focus-visible:ring-cyan-400"
-                    autoComplete="email"
+                    type="email" placeholder="name@example.com"
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading} autoComplete="email"
+                    className="w-full placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(271,60%,65%)]"
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="signup-password" className="block text-sm font-medium text-white/80 mb-1">Password</label>
+                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                    Password
+                  </label>
                   <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 focus-visible:ring-2 focus-visible:ring-cyan-400"
-                    autoComplete="new-password"
+                    type="password" placeholder="••••••••"
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading} autoComplete="new-password"
+                    className="w-full placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(271,60%,65%)]"
+                    style={inputStyle}
                   />
-                  <p className="text-xs text-white/60 mt-1">Must be at least 8 characters</p>
+                  <p className="text-xs mt-1" style={{ color: 'hsl(260, 8%, 40%)' }}>Must be at least 8 characters</p>
                 </div>
 
-                <Button
+                <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-cyan-500/30 transition-all duration-300"
-                  size="lg"
                   disabled={isLoading}
+                  className="w-full h-11 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none mt-2"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(271, 60%, 58%), hsl(38, 90%, 54%))',
+                    color: 'hsl(40, 20%, 95%)',
+                    boxShadow: '0 4px 20px hsl(271 60% 58% / 0.25)',
+                  }}
                 >
                   {isLoading ? 'Creating account…' : 'Create Account'}
-                </Button>
+                </button>
               </form>
 
-              <p className="text-center text-sm text-white/70 mt-6">
+              <p className="text-center text-sm mt-6" style={{ color: 'hsl(260, 8%, 50%)' }}>
                 Already have an account?{' '}
-                <button type="button" className="font-medium text-cyan-400 hover:underline" onClick={() => switchTo('login')}>
+                <button type="button" className="font-medium hover:underline transition-colors" style={{ color: 'hsl(38, 90%, 60%)' }} onClick={() => switchTo('login')}>
                   Sign in
                 </button>
               </p>

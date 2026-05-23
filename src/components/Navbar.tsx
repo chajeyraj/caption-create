@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, Search, User, PenTool } from "lucide-react";
+import { Menu, X, Search, User, PenLine } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -14,9 +13,6 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, loading } = useAuth();
   const location = useLocation();
-  useEffect(() => {
-    console.log('[Navbar] auth changed — loading:', loading, 'user:', user?.email ?? 'none');
-  }, [user, loading]);
   const navigate = useNavigate();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -53,181 +49,201 @@ export const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/explore', label: 'Explore' },
+    { to: '/categories', label: 'Categories' },
+    { to: '/trending', label: 'Trending' },
+  ];
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
+    <nav
+      className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+      style={{
+        background: isScrolled
+          ? 'hsl(232, 20%, 7% / 0.95)'
+          : 'hsl(232, 20%, 7% / 0.7)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: isScrolled
+          ? '1px solid hsl(240, 12%, 20%)'
+          : '1px solid hsl(240, 12%, 14%)',
+        boxShadow: isScrolled ? '0 4px 30px hsl(0 0% 0% / 0.3)' : 'none',
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 relative">
-          {/* Mobile Menu Button - Left aligned */}
-          
 
-          {/* Logo - Centered */}
-          <div className="flex items-center justify-start md:justify-start w-auto md:w-auto">
-            <Link to="/" className="flex items-center space-x-2 group">
-              <img 
-                src="/img/logo.PNG" 
-                alt="CaptionCrafter Logo" 
-                className="h-8 w-auto"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = "/logo.png";
-                  target.className = "h-8 w-8";
-                }}
-              />
-              <span className={`text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent ${isMenuOpen ? 'md:hidden' : ''}`}>
-                Caption Crafter
-              </span>
-            </Link>
-          </div>
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+            <img
+              src="/img/logo.PNG"
+              alt="CaptionCrafter Logo"
+              className="h-8 w-auto"
+              onError={(e) => {
+                const t = e.target as HTMLImageElement;
+                t.onerror = null;
+                t.src = "/logo.png";
+                t.className = "h-8 w-8";
+              }}
+            />
+            <span
+              className="text-lg font-bold font-display tracking-tight transition-opacity duration-200 group-hover:opacity-80"
+              style={{ color: 'hsl(40, 20%, 92%)' }}
+            >
+              Caption<span style={{ color: 'hsl(38, 90%, 58%)' }}>Crafter</span>
+            </span>
+          </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
-            {[
-              { to: '/', label: 'Home' },
-              { to: '/explore', label: 'Explore' },
-              { to: '/categories', label: 'Categories' },
-              { to: '/trending', label: 'Trending' },
-            ].map(({ to, label }) => (
+          {/* Desktop nav — centered */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            {navLinks.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className={`relative pb-0.5 transition-colors group ${
-                  isActive(to) ? 'text-blue-600 font-medium' : 'text-foreground hover:text-blue-600'
-                }`}
+                className="relative pb-0.5 text-sm font-medium transition-colors duration-200 group"
+                style={{ color: isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)' }}
+                onMouseEnter={(e) => {
+                  if (!isActive(to)) (e.currentTarget as HTMLElement).style.color = 'hsl(40, 20%, 92%)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)';
+                }}
               >
                 {label}
                 <span
-                  className={`absolute bottom-0 left-0 h-[2px] bg-blue-600 transition-transform duration-300 origin-left ${
-                    isActive(to) ? 'w-full scale-x-100' : 'w-full scale-x-0 group-hover:scale-x-100'
-                  }`}
+                  className="absolute bottom-0 left-0 h-px rounded-full transition-transform duration-300 origin-left"
+                  style={{
+                    width: '100%',
+                    transform: isActive(to) ? 'scaleX(1)' : 'scaleX(0)',
+                    background: 'linear-gradient(90deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
+                  }}
                 />
               </Link>
             ))}
           </div>
 
-          {/* Desktop Actions - Right aligned */}
-          <div className="hidden md:flex items-center space-x-4 absolute right-0">
+          {/* Desktop actions */}
+          <div className="hidden md:flex items-center gap-3">
             {!loading && (
               <>
                 {user ? (
-                  <div className="flex items-center space-x-4">
-
-                    <Link to="/profile">
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        aria-label="Profile"
-                        className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-                      >
-                        <User className="h-5 w-5" />
-                      </Button>
-                    </Link>
-                  </div>
+                  <Link to="/profile">
+                    <button
+                      aria-label="Profile"
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
+                      style={{
+                        border: '1px solid hsl(38 90% 54% / 0.4)',
+                        background: 'hsl(38 90% 54% / 0.08)',
+                        color: 'hsl(38, 90%, 62%)',
+                      }}
+                    >
+                      <User className="h-4 w-4" />
+                    </button>
+                  </Link>
                 ) : (
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
+                  <button
                     onClick={handleOpenAuthModal}
-                    aria-label="Login"
-                    className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                    aria-label="Sign in"
+                    className="h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
+                    style={{
+                      border: '1px solid hsl(40 20% 92% / 0.15)',
+                      background: 'hsl(40 20% 92% / 0.05)',
+                      color: 'hsl(40, 20%, 72%)',
+                    }}
                   >
-                    <User className="h-5 w-5" />
-                  </Button>
+                    <User className="h-4 w-4" />
+                  </button>
                 )}
               </>
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden h-9 w-9 flex items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'hsl(40, 20%, 75%)', background: 'transparent' }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border/50 animate-fade-in">
-            <div className="flex flex-col space-y-4">
-              {/* Mobile Search */}
+          <div
+            className="md:hidden py-4 animate-fade-in"
+            style={{ borderTop: '1px solid hsl(240, 12%, 18%)' }}
+          >
+            <div className="flex flex-col gap-4">
+              {/* Search */}
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'hsl(260, 8%, 50%)' }} />
                 <Input
                   placeholder="Search captions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
+                  style={{ background: 'hsl(240, 10%, 13%)', border: '1px solid hsl(240, 12%, 22%)', color: 'hsl(40, 20%, 85%)' }}
                 />
               </form>
 
-              <Link to="/" className="text-foreground hover:text-blue-600 transition-colors py-2">
-                Home
-              </Link>
-              <Link to="/explore" className="text-foreground hover:text-blue-600 transition-colors py-2">
-                Explore
-              </Link>
-              <Link to="/categories" className="text-foreground hover:text-blue-600 transition-colors py-2">
-                Categories
-              </Link>
-              <Link to="/trending" className="text-foreground hover:text-blue-600 transition-colors py-2">
-                Trending
-              </Link>
-              
-              <div className="flex flex-col space-y-3 pt-4 border-t border-border/50">
+              {/* Links */}
+              {navLinks.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="py-2 text-sm font-medium transition-colors"
+                  style={{ color: isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)' }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              ))}
+
+              <div className="flex flex-col gap-3 pt-3" style={{ borderTop: '1px solid hsl(240, 12%, 18%)' }}>
                 {!loading && (
-                  <>
-                    {user ? (
-                      <Link to="/profile" className="w-fit">
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          aria-label="Profile"
-                          className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 w-10 h-10"
-                        >
-                          <User className="h-5 w-5" />
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="rounded-full border border-blue-600 bg-background hover:bg-accent text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 w-10 h-10" 
-                        onClick={handleOpenAuthModal}
-                        aria-label="Login"
+                  user ? (
+                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                      <button
+                        className="h-9 w-9 rounded-full flex items-center justify-center transition-all"
+                        style={{ border: '1px solid hsl(38 90% 54% / 0.4)', background: 'hsl(38 90% 54% / 0.08)', color: 'hsl(38, 90%, 62%)' }}
                       >
-                        <User className="h-5 w-5" />
-                      </Button>
-                    )}
-                  </>
+                        <User className="h-4 w-4" />
+                      </button>
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={handleOpenAuthModal}
+                      className="h-9 w-9 rounded-full flex items-center justify-center transition-all"
+                      style={{ border: '1px solid hsl(40 20% 92% / 0.15)', background: 'hsl(40 20% 92% / 0.05)', color: 'hsl(40, 20%, 72%)' }}
+                    >
+                      <User className="h-4 w-4" />
+                    </button>
+                  )
                 )}
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  className="w-full"
+
+                <button
+                  className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
+                    color: 'hsl(232, 20%, 7%)',
+                  }}
                   onClick={() => {
                     setIsMenuOpen(false);
                     if (user) navigate('/profile');
                     else handleOpenAuthModal();
                   }}
                 >
-                  <PenTool className="h-4 w-4 mr-2" />
+                  <PenLine className="h-4 w-4" />
                   Create Caption
-                </Button>
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
-      
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={handleCloseAuthModal}
-        onAuthSuccess={handleAuthSuccess}
-      />
+
+      <AuthModal isOpen={showAuthModal} onClose={handleCloseAuthModal} onAuthSuccess={handleAuthSuccess} />
     </nav>
   );
 };
