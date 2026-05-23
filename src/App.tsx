@@ -9,10 +9,11 @@ import Categories from "./pages/Categories";
 import CategoryCaptions from "./pages/CategoryCaptions";
 import Trending from "./pages/Trending";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./hooks/useAuth";
+import { PageTransition } from "./components/PageTransition";
+import { PageProgress } from "./components/PageProgress";
 
 const queryClient = new QueryClient();
 
@@ -24,18 +25,20 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/category/:category" element={<CategoryCaptions />} />
-              <Route path="/trending" element={<Trending />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/profile" element={<Profile />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <PageProgress />
+            <PageTransition>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/category/:category" element={<CategoryCaptions />} />
+                <Route path="/trending" element={<Trending />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/profile" element={<Profile />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </PageTransition>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

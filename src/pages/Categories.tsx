@@ -1,86 +1,11 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Smile, Star, Quote, Coffee, Book, Zap, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import { fetchCategoryCounts } from "@/utils/categoryCounts";
-
-const categories = [
-  {
-    name: "Motivational",
-    icon: Zap,
-    color: "from-teal-500 to-emerald-500",
-    description: "Inspire and get inspired"
-  },
-  {
-    name: "Love & Romance",
-    icon: Heart,
-    color: "from-pink-500 to-red-500",
-    description: "Express your feelings"
-  },
-  {
-    name: "Funny",
-    icon: Smile,
-    color: "from-yellow-500 to-orange-500",
-    description: "Bring smiles and laughter"
-  },
-  {
-    name: "Success",
-    icon: Star,
-    color: "from-purple-500 to-cyan-500",
-    description: "Celebrate achievements"
-  },
-  {
-    name: "Life Quotes",
-    icon: Quote,
-    color: "from-green-500 to-teal-500",
-    description: "Wisdom for daily life"
-  },
-  {
-    name: "Coffee",
-    icon: Coffee,
-    color: "from-amber-600 to-yellow-500",
-    description: "For coffee lovers"
-  },
-  {
-    name: "Books",
-    icon: Book,
-    color: "from-cyan-500 to-teal-500",
-    description: "Literary inspiration"
-  },
-  {
-    name: "Good Morning",
-    icon: Sun,
-    color: "from-orange-500 to-pink-500",
-    description: "Start your day right"
-  },
-  {
-    name: "தமிழ்",
-    icon: Quote,
-    color: "from-red-500 to-orange-500",
-    description: "Tamil quotes and wisdom"
-  },
-  {
-    name: "සිංහල",
-    icon: Quote,
-    color: "from-blue-500 to-indigo-500",
-    description: "Sinhala quotes and wisdom"
-  },
-  {
-    name: "中文",
-    icon: Quote,
-    color: "from-red-600 to-yellow-500",
-    description: "Chinese quotes and wisdom"
-  },
-  {
-    name: "हिन्दी",
-    icon: Quote,
-    color: "from-green-600 to-yellow-500",
-    description: "Hindi quotes and wisdom"
-  }
-];
+import { CATEGORY_META } from "@/constants/categories";
 
 const Categories = () => {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
@@ -88,6 +13,7 @@ const Categories = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "Browse Categories — CaptionCrafter";
     const fetchCounts = async () => {
       setLoading(true);
       setError(null);
@@ -125,23 +51,23 @@ const Categories = () => {
             <div className="text-center text-red-500 py-12">{error}</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-              {categories.map((category, index) => {
+              {CATEGORY_META.map((category, index) => {
                 const Icon = category.icon;
                 const count = categoryCounts[category.name] || 0;
                 return (
-                  <Link 
+                  <Link
                     key={category.name}
                     to={`/category/${encodeURIComponent(category.name)}`}
                     className="block"
                   >
-                    <Card 
-                      className={`group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg overflow-hidden animate-fade-in`}
-                      style={{animationDelay: `${index * 100}ms`}}
+                    <Card
+                      className={`group cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg overflow-hidden animate-fade-in will-change-transform`}
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${category.color.replace('to-', 'to-').replace('from-', 'from-')} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
                       <CardContent className="p-6 text-center relative z-10">
-                        <div 
-                          className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-md`}
+                        <div
+                          className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${category.gradient} flex items-center justify-center group-hover:scale-110 group-hover:animate-wobble transition-all duration-300 shadow-md`}
                         >
                           <Icon className="h-8 w-8 text-white" />
                         </div>

@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CaptionCard } from "@/components/CaptionCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchCaptionLikeCounts, fetchUserLikedCaptionIds } from "@/utils/likes";
+import { useAuth } from "@/hooks/useAuth";
 import { Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 // Number of items per page
@@ -19,63 +22,144 @@ interface Caption {
   user_id: string;
   created_at: string;
   likes?: number;
+  isLiked?: boolean;
+  authorAvatar?: string | null;
   profiles?: {
     display_name: string;
     email: string;
+    avatar_url?: string | null;
   };
 }
 
+type Category = string;
+
 const Explore = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
+  const [selectedCategory, setSelectedCategory] = useState<Category | "All">("All");
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryAttempt, setRetryAttempt] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [categories, setCategories] = useState<string[]>(["All"]);
+  console.log('[Explore] render — loading:', loading, 'error:', error, 'captions:', captions.length, 'user:', user?.email ?? 'none');
 
   useEffect(() => {
-    fetchCaptions();
+    document.title = "Explore Captions — CaptionCrafter";
   }, []);
 
-  const fetchCaptions = async () => {
-    const { data: captionsData } = await supabase
-      .from('captions')
-      .select('*')
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    let isMounted = true;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    let retryTimeout: NodeJS.Timeout;
 
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*');
+    const fetchData = async () => {
+      if (!isMounted) return;
 
-    // Combine captions with profile data
-    const captionsWithProfiles = captionsData?.map(caption => {
-      const profile = profilesData?.find(p => p.user_id === caption.user_id);
-      return {
-        ...caption,
-        profiles: profile ? {
-          display_name: profile.display_name || profile.email,
-          email: profile.email
-        } : undefined
-      };
-    });
+      console.log('[Explore] fetchData start — user:', user?.id ?? 'none', 'retryCount:', retryCount);
+      setLoading(true);
+      setError(null);
 
-    if (captionsWithProfiles) {
-      setCaptions(captionsWithProfiles);
-      
-      // Extract unique categories from captions
-      const uniqueCategories = Array.from(
-        new Set(
-          captionsWithProfiles
-            .map(caption => caption.category)
-            .filter(Boolean)
-        )
-      ).sort();
-      
-      setCategories(["All", ...uniqueCategories]);
-    }
-    setLoading(false);
-  };
+      try {
+        const { data: captionsData, error: captionsError } = await supabase
+          .from("captions")
+          .select('id, title, content, image_url, category, user_id, created_at', { count: 'exact' })
+          .order("created_at", { ascending: false });
+
+        console.log('[Explore] captions fetch result — count:', captionsData?.length ?? 0, 'error:', captionsError);
+        if (captionsError) throw captionsError;
+
+        if (!isMounted || !captionsData) return;
+
+        const userIds = Array.from(
+          new Set(captionsData.map(caption => caption.user_id).filter(Boolean))
+        ) as string[];
+
+        const { data: profiles = [], error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, email, avatar_url')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        if (!isMounted) return;
+
+        const profilesMap = profiles.reduce((acc, profile) => {
+          acc[profile.user_id] = profile;
+          return acc;
+        }, {} as Record<string, any>);
+
+        const captionIds = captionsData.map(caption => caption.id);
+
+        let likedCaptionIds: string[] = [];
+        let likeCounts: Record<string, number> = {};
+
+        try {
+          [likedCaptionIds, likeCounts] = await Promise.all([
+            user?.id ? fetchUserLikedCaptionIds(user.id, captionIds) : Promise.resolve([]),
+            captionIds.length > 0 ? fetchCaptionLikeCounts(captionIds) : Promise.resolve({})
+          ]);
+        } catch (likeError) {
+          console.error("[Explore] Error fetching likes:", likeError);
+        }
+
+        if (!isMounted) return;
+
+        const processedCaptions = captionsData.map(caption => {
+          const profile = profilesMap[caption.user_id] || {};
+          const displayName = profile.display_name ||
+            (profile.email ? profile.email.split('@')[0] : 'Anonymous');
+          const authorAvatar = profile.avatar_url || null;
+
+          return {
+            ...caption,
+            author: displayName,
+            authorAvatar,
+            likes: likeCounts[caption.id] || 0,
+            isLiked: likedCaptionIds.includes(caption.id),
+            profiles: {
+              display_name: displayName,
+              email: profile.email || '',
+              avatar_url: authorAvatar
+            }
+          };
+        });
+
+        console.log('[Explore] setCaptions with', processedCaptions.length, 'items');
+        setCaptions(processedCaptions);
+
+        const uniqueCategories = Array.from(
+          new Set(processedCaptions.map(caption => caption.category).filter(Boolean))
+        ).sort();
+
+        setCategories(["All", ...uniqueCategories]);
+      } catch (err) {
+        if (retryCount < MAX_RETRIES && isMounted) {
+          retryCount++;
+          setRetryAttempt(retryCount);
+          retryTimeout = setTimeout(fetchData, 1000 * retryCount);
+          return;
+        }
+        if (isMounted) {
+          console.error('[Explore] all retries failed:', err);
+          setError('Failed to load captions. Please refresh the page.');
+          setRetryAttempt(0);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(retryTimeout);
+    };
+  }, [user?.id]);
 
   const filteredCaptions = useMemo(() => {
     return captions.filter(caption => {
@@ -103,6 +187,20 @@ const Explore = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleLikeUpdate = (id: string, newLikeCount: number, isLiked: boolean) => {
+    setCaptions((prev) =>
+      prev.map((caption) =>
+        caption.id === id
+          ? {
+              ...caption,
+              likes: newLikeCount,
+              isLiked,
+            }
+          : caption,
+      ),
+    );
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -121,13 +219,13 @@ const Explore = () => {
 
           {/* Search and Filters */}
           <div className="mb-8 space-y-4">
-            <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <div className="relative max-w-md mx-auto transition-all duration-300 focus-within:scale-[1.03] focus-within:shadow-md rounded-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 transition-colors duration-200 peer-focus:text-primary" />
               <Input
                 placeholder="Search captions or authors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/50"
               />
             </div>
 
@@ -146,29 +244,53 @@ const Explore = () => {
           </div>
 
           {/* Captions Grid */}
-          {loading ? (
+          {error ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Loading captions...</p>
+              <p className="text-destructive text-lg">{error}</p>
+              <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          ) : loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                {retryAttempt > 0
+                  ? `Connection slow — retrying (attempt ${retryAttempt}/3)...`
+                  : 'Loading captions...'}
+              </p>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {paginatedCaptions.map((caption) => (
-                    <CaptionCard
+                  <CaptionCard
                     key={caption.id}
                     id={caption.id}
                     caption={caption.content}
                     author={caption.profiles?.display_name || caption.profiles?.email || 'Unknown'}
                     category={caption.category || 'Uncategorized'}
                     likes={caption.likes || 0}
-                    isLiked={false}
+                    isLiked={caption.isLiked ?? false}
+                    authorAvatar={caption.authorAvatar ?? undefined}
+                    onLikeUpdate={handleLikeUpdate}
                   />
                 ))}
               </div>
 
               {filteredCaptions.length === 0 && !loading ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">No captions found matching your search.</p>
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                  <Search className="h-12 w-12 text-muted-foreground/40 mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No captions found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    {searchQuery
+                      ? `No results for "${searchQuery}". Try different keywords or clear the search.`
+                      : "No captions in this category yet. Try selecting a different one."}
+                  </p>
+                  {searchQuery && (
+                    <Button variant="outline" className="mt-4" onClick={() => setSearchQuery("")}>
+                      Clear search
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 border-t border-border">

@@ -17,6 +17,7 @@ export type Database = {
       captions: {
         Row: {
           category: string | null
+          category_id: string | null
           content: string
           created_at: string
           id: string
@@ -28,6 +29,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          category_id?: string | null
           content: string
           created_at?: string
           id?: string
@@ -39,6 +41,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          category_id?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -47,6 +50,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           likes?: number
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }

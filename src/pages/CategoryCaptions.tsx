@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CaptionCard } from "@/components/CaptionCard";
@@ -7,19 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Hash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-// Define category colors to match the Categories page
-const categoryColors: Record<string, string> = {
-  "Motivational": "from-teal-500 to-emerald-500",
-  "Love & Romance": "from-pink-500 to-red-500",
-  "Funny": "from-yellow-500 to-orange-500",
-  "Success": "from-purple-500 to-cyan-500",
-  "Life Quotes": "from-green-500 to-teal-500",
-  "Coffee": "from-amber-600 to-yellow-500",
-  "Books": "from-cyan-500 to-teal-500",
-  "Good Morning": "from-orange-500 to-pink-500",
-  "தமிழ்": "from-red-500 to-orange-500"
-};
+import { useAuth } from "@/hooks/useAuth";
+import { fetchUserLikedCaptionIds, markLikesFeatureUnavailable, fetchCaptionLikeCounts } from "@/utils/likes";
+import type { PostgrestError } from "@supabase/supabase-js";
+import { CATEGORY_GRADIENTS } from "@/constants/categories";
 
 interface Caption {
   id: string;
@@ -33,49 +24,128 @@ interface Caption {
     display_name?: string;
     email: string;
   };
+  likes?: number;
+  isLiked?: boolean;
+  authorAvatar?: string | null;
 }
 
 const CategoryCaptions = () => {
   const { category = '' } = useParams<{ category: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(9); // 9 items per page (3x3 grid)
+  const itemsPerPage = 9;
+  console.log('[CategoryCaptions] render — category:', category, 'loading:', loading, 'captions:', captions.length, 'user:', user?.email ?? 'none');
   
-  // Get the gradient class for the current category, default to blue if not found
-  const gradientClass = categoryColors[category] || 'from-purple-500 to-cyan-500';
+  // react-router already decodes the param; use it directly as the display + DB lookup key
+  const gradientClass = CATEGORY_GRADIENTS[category] || 'from-purple-500 to-cyan-500';
 
   useEffect(() => {
-    fetchCaptions();
+    if (category) document.title = `${category} — CaptionCrafter`;
   }, [category]);
 
-  const fetchCaptions = async () => {
+  useEffect(() => {
     if (!category) return;
-    
-    setLoading(true);
-    try {
-      const { data: captionsData, error } = await supabase
-        .from('captions')
-        .select('*')
-        .eq('category', category)
-        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      const captionsWithProfiles = captionsData?.map(caption => ({
-        ...caption,
-        profiles: null // Simplified for now since we don't need profile data for this view
-      })) || [];
-      
-      setCaptions(captionsWithProfiles);
-    } catch (error) {
-      console.error('Error fetching captions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    let isMounted = true;
+
+    const fetchCaptions = async () => {
+      console.log('[CategoryCaptions] fetchCaptions start — category:', category, 'user:', user?.id ?? 'none');
+      setLoading(true);
+      try {
+        const selectFields = "id, title, content, image_url, category, user_id, created_at";
+
+        const { data: captionsDataRaw, error } = await supabase
+          .from("captions")
+          .select(selectFields)
+          .eq("category", category)
+          .order("created_at", { ascending: false });
+
+        console.log('[CategoryCaptions] fetch result — count:', captionsDataRaw?.length ?? 0, 'error:', error);
+        if (error) throw error;
+
+        const captionsData = captionsDataRaw ?? [];
+
+        const captionsRows = captionsData as Caption[];
+
+        const captionIds = captionsRows.map((caption) => caption.id);
+        let likedCaptionIds: string[] = [];
+        let likeCounts: Record<string, number> = {};
+
+        try {
+          const metadataResults = await Promise.all([
+            fetchUserLikedCaptionIds(user?.id, captionIds),
+            fetchCaptionLikeCounts(captionIds),
+          ]);
+          likedCaptionIds = metadataResults[0] ?? [];
+          likeCounts = metadataResults[1] ?? {};
+        } catch (metadataError) {
+          markLikesFeatureUnavailable(metadataError as PostgrestError | null);
+          console.error("[Likes] Failed to load category metadata, using defaults", {
+            category,
+            error: metadataError,
+          });
+          likedCaptionIds = [];
+          likeCounts = {};
+        }
+        const userIds = captionsRows.map((caption) => caption.user_id).filter(Boolean) ?? [];
+        const profilesMap = new Map<
+          string,
+          { display_name?: string | null; email?: string | null; avatar_url?: string | null }
+        >();
+
+        if (userIds.length > 0) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("user_id, display_name, email, avatar_url")
+            .in("user_id", userIds);
+
+          if (profileError) {
+            console.error("Error fetching profiles for category captions:", profileError);
+          } else {
+            profileData?.forEach((profile) => {
+              profilesMap.set(profile.user_id, {
+                display_name: profile.display_name,
+                email: profile.email,
+                avatar_url: profile.avatar_url,
+              });
+            });
+          }
+        }
+
+        if (!isMounted) {
+          return;
+        }
+
+        const captionsWithProfiles =
+          captionsRows.map((caption) => ({
+            ...caption,
+            profiles: profilesMap.get(caption.user_id) || null,
+            isLiked: likedCaptionIds.includes(caption.id),
+            likes: likeCounts[caption.id] ?? 0,
+            authorAvatar: profilesMap.get(caption.user_id)?.avatar_url || null,
+          })) || [];
+
+        console.log('[CategoryCaptions] setCaptions with', captionsWithProfiles.length, 'items');
+        setCaptions(captionsWithProfiles);
+      } catch (error) {
+        console.error('[CategoryCaptions] fetch error:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCaptions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [category, user?.id]);
 
   const filteredCaptions = captions.filter(caption =>
     caption.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -95,6 +165,20 @@ const CategoryCaptions = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, category]);
+
+  const handleLikeUpdate = (captionId: string, newLikeCount: number, isLiked: boolean) => {
+    setCaptions((prev) =>
+      prev.map((caption) =>
+        caption.id === captionId
+          ? {
+              ...caption,
+              likes: newLikeCount,
+              isLiked,
+            }
+          : caption,
+      ),
+    );
+  };
 
   if (loading) {
     return (
@@ -137,7 +221,7 @@ const CategoryCaptions = () => {
               </div>
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-                  {decodeURIComponent(category)}
+                  {category}
                 </h1>
                 <p className="text-muted-foreground">
                   {filteredCaptions.length} {filteredCaptions.length === 1 ? 'caption' : 'captions'} available
@@ -161,37 +245,40 @@ const CategoryCaptions = () => {
 
           {/* Captions Grid */}
           {filteredCaptions.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="bg-muted/50 p-8 rounded-lg inline-block">
-                <p className="text-muted-foreground text-lg">
-                  {searchQuery 
-                    ? "No captions found matching your search." 
-                    : `No captions found in the ${category} category yet.`
-                  }
-                </p>
-                {!searchQuery && (
-                  <Button 
-                    variant="outline" 
-                    className="mt-4"
-                    onClick={() => navigate('/explore')}
-                  >
-                    Explore all captions
-                  </Button>
-                )}
-              </div>
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <Search className="h-12 w-12 text-muted-foreground/40 mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                {searchQuery ? "No captions found" : `Nothing in ${category} yet`}
+              </h3>
+              <p className="text-muted-foreground max-w-sm">
+                {searchQuery
+                  ? `No results for "${searchQuery}". Try different keywords.`
+                  : "This category doesn't have any captions yet. Check back later or explore other categories."}
+              </p>
+              {searchQuery ? (
+                <Button variant="outline" className="mt-4" onClick={() => setSearchQuery("")}>
+                  Clear search
+                </Button>
+              ) : (
+                <Button variant="outline" className="mt-4" onClick={() => navigate('/explore')}>
+                  Explore all captions
+                </Button>
+              )}
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {currentCaptions.map((captionData) => (
-                  <div key={captionData.id} className="transform transition-all duration-300 hover:scale-[1.02]">
+                  <div key={captionData.id}>
                     <CaptionCard 
                       id={captionData.id}
                       caption={captionData.content}
-                      author={captionData.profiles?.display_name || "Anonymous"}
+                      author={captionData.profiles?.display_name || captionData.profiles?.email || "Anonymous"}
                       category={captionData.category || "General"}
-                      likes={0}
-                      isLiked={false}
+                      likes={captionData.likes ?? 0}
+                      isLiked={captionData.isLiked ?? false}
+                      authorAvatar={captionData.authorAvatar ?? undefined}
+                      onLikeUpdate={handleLikeUpdate}
                     />
                   </div>
                 ))}
@@ -258,3 +345,4 @@ const CategoryCaptions = () => {
 };
 
 export default CategoryCaptions;
+

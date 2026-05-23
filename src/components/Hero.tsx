@@ -1,47 +1,34 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Sparkles, TrendingUp, Users } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { AuthModal } from '@/components/AuthModal';
+import { useInView } from '@/hooks/useInView';
+import { useCountUp } from '@/hooks/useCountUp';
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showSignupModal, setShowSignupModal] = useState(false);
+  useEffect(() => {
+    console.log('[Hero] user changed:', user?.email ?? 'none');
+  }, [user]);
 
   const handleStartCreating = () => {
-    if (user) {
-      navigate('/profile');
-    } else {
-      setShowAuthModal(true);
-    }
+    if (user) navigate('/profile');
+    else setShowAuthModal(true);
   };
-
-  const handleExplore = () => {
-    navigate('/explore');
-  };
-
-  const handleCloseAuthModal = useCallback(() => {
-    setShowAuthModal(false);
-  }, []);
-
-  const switchToSignup = useCallback(() => {
-    setShowAuthModal(false);
-    // Small delay to allow modal transition
-    const timer = setTimeout(() => {
-      setShowSignupModal(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleAuthSuccess = useCallback(() => {
     setShowAuthModal(false);
-    setShowSignupModal(false);
-    // Navigate to profile after successful login
     navigate('/profile');
   }, [navigate]);
+
+  const [statsRef, statsInView] = useInView<HTMLDivElement>({ threshold: 0.5 });
+  const creatorsCount = useCountUp(10, 1000, statsInView);
+  const captionsCount = useCountUp(1000, 1400, statsInView);
+  const sharesCount = useCountUp(100, 1200, statsInView);
 
   return (
     <section className="relative overflow-hidden bg-gradient-hero min-h-screen flex items-center mt-[5px]">
@@ -56,17 +43,19 @@ export const Hero = () => {
         <div className="text-center max-w-4xl mx-auto">
           {/* Main heading */}
           <div className="animate-fade-in mt-[50px]">
-            <h3 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight font-serif">
-              Unleash Your 
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight font-serif">
+              Unleash Your
               <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                 Words
               </span>
               Inspire the World
-            </h3>
+            </h1>
           </div>
 
           {/* Subheading */}
-      
+          <p className="animate-fade-in text-xl text-white/80 max-w-2xl mx-auto mb-8" style={{ animationDelay: '0.2s' }}>
+            Browse thousands of captions across every mood, category, and language — then make them yours.
+          </p>
 
           {/* CTA Buttons */}
           <div className="animate-fade-in flex flex-col sm:flex-row gap-4 justify-center mb-12" style={{ animationDelay: '0.4s' }}>
@@ -77,38 +66,38 @@ export const Hero = () => {
               onClick={handleStartCreating}
             >
               Start Creating
-              <Sparkles className="ml-2 h-5 w-5 group-hover:animate-spin" />
+              <Sparkles className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110" />
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
               className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm w-full sm:w-auto"
-              onClick={handleExplore}
+              onClick={() => navigate('/explore')}
             >
               Explore Captions
             </Button>
           </div>
 
           {/* Stats */}
-          <div className="animate-fade-in grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-2xl mx-auto w-full" style={{ animationDelay: '0.6s' }}>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Users className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">10+</span>
+          <div ref={statsRef} className="animate-fade-in flex flex-col sm:flex-row max-w-2xl mx-auto w-full divide-y sm:divide-y-0 sm:divide-x divide-white/20" style={{ animationDelay: '0.6s' }}>
+            <div className="text-center flex-1 py-4 sm:py-0 sm:px-8">
+              <div className="flex items-center justify-center mb-1">
+                <Users className="h-5 w-5 text-white/80 mr-2" />
+                <span className="text-2xl font-bold text-white">{creatorsCount}+</span>
               </div>
               <p className="text-white/70 text-sm">Active Creators</p>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Sparkles className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">1000+</span>
+            <div className="text-center flex-1 py-4 sm:py-0 sm:px-8">
+              <div className="flex items-center justify-center mb-1">
+                <Sparkles className="h-5 w-5 text-white/80 mr-2" />
+                <span className="text-2xl font-bold text-white">{captionsCount}+</span>
               </div>
               <p className="text-white/70 text-sm">Captions Created</p>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <TrendingUp className="h-6 w-6 text-white/80 mr-2" />
-                <span className="text-2xl font-bold text-white">100+</span>
+            <div className="text-center flex-1 py-4 sm:py-0 sm:px-8">
+              <div className="flex items-center justify-center mb-1">
+                <TrendingUp className="h-5 w-5 text-white/80 mr-2" />
+                <span className="text-2xl font-bold text-white">{sharesCount}+</span>
               </div>
               <p className="text-white/70 text-sm">Shares Daily</p>
             </div>
@@ -116,24 +105,11 @@ export const Hero = () => {
         </div>
       </div>
       
-      {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
-        onClose={handleCloseAuthModal}
-        onSwitchToSignup={switchToSignup}
+        onClose={() => setShowAuthModal(false)}
         onAuthSuccess={handleAuthSuccess}
       />
-      
-      {/* Signup Modal - You can add this if needed */}
-      {/* <SignupModal
-        isOpen={showSignupModal}
-        onClose={() => setShowSignupModal(false)}
-        onSwitchToLogin={() => {
-          setShowSignupModal(false);
-          setShowAuthModal(true);
-        }}
-        onAuthSuccess={handleAuthSuccess}
-      /> */}
     </section>
   );
 };

@@ -4,17 +4,26 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
+type SignUpResultData = Awaited<ReturnType<typeof supabase.auth.signUp>>['data'];
+type SignInResultData = Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>['data'];
+
+type AuthOperationResult<T> = {
+  data: T | null;
+  error: Error | null;
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userProfile: { 
-    name: string | null; 
+  userProfile: {
+    name: string | null;
     display_name?: string | null;
-    email: string 
+    email: string;
+    avatar_url?: string | null;
   } | null;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any; data: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any; data: any }>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<AuthOperationResult<SignUpResultData>>;
+  signIn: (email: string, password: string) => Promise<AuthOperationResult<SignInResultData>>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
@@ -27,29 +36,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ name: string | null; email: string; display_name?: string | null } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ name: string | null; email: string; display_name?: string | null; avatar_url?: string | null } | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Function to handle user profile data
-  interface ProfileData {
-    display_name: string | null;
-    email: string | null;
-    user_id: string;
-    created_at?: string;
-    updated_at?: string;
-  }
-
   const handleUserProfile = async (user: User) => {
+    console.log('[useAuth] handleUserProfile called for user:', user.id, user.email);
     try {
-      // Check if profile exists - only select existing columns
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('display_name, email, user_id, created_at, updated_at')
+        .select('display_name, email, user_id, avatar_url, created_at, updated_at')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // If no profile exists or there's an error, create one
+      console.log('[useAuth] profile fetch result:', { profileData, profileError });
+
       if (!profileData || profileError?.code === 'PGRST116') {
         const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
         const newProfile = {
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
-        
+
         const { error: createError } = await supabase
           .from('profiles')
           .upsert(newProfile)
@@ -68,28 +69,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (createError) throw createError;
 
-        // Set user profile with the new data
         const userProfileData = {
           name: displayName,
           display_name: displayName,
           email: user.email || ''
         };
-        
+
         setUserProfile(userProfileData);
-        setIsAdmin(false); // Default to non-admin
-        
+        setIsAdmin(false);
+
         return userProfileData;
       }
 
-      // If we have profile data, update the state
       const userProfileData = {
         name: profileData.display_name || null,
         display_name: profileData.display_name || null,
-        email: profileData.email || user.email || ''
+        email: profileData.email || user.email || '',
+        avatar_url: profileData.avatar_url || null,
       };
-      
+
+      console.log('[useAuth] userProfile set:', userProfileData);
       setUserProfile(userProfileData);
-      setIsAdmin(false); // Default to non-admin until we implement proper admin check
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle();
+      console.log('[useAuth] isAdmin:', userData?.is_admin ?? false);
+      setIsAdmin(userData?.is_admin ?? false);
 
       return userProfileData;
     } catch (error) {
@@ -120,48 +128,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Set up auth state listener
   useEffect(() => {
+    // Get the initial session without relying on detectSessionInUrl
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[useAuth] getSession:', session?.user?.email ?? 'none');
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      if (session?.user) {
+        // Defer outside getSession callback to avoid internal lock contention
+        setTimeout(() => handleUserProfile(session.user).catch(console.error), 0);
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        console.log('[useAuth] onAuthStateChange:', event, 'user:', session?.user?.email ?? 'none');
         setSession(session);
         setUser(session?.user ?? null);
-        
+        setLoading(false);
+
         if (session?.user) {
-          try {
-            await handleUserProfile(session.user);
-          } catch (error) {
-            console.error('Error in auth state change:', error);
-          }
+          // Defer DB call outside the auth callback to avoid deadlock
+          const currentUser = session.user;
+          setTimeout(() => handleUserProfile(currentUser).catch(console.error), 0);
         } else {
+          console.log('[useAuth] no session — clearing userProfile and isAdmin');
           setUserProfile(null);
           setIsAdmin(false);
         }
-        
-        setLoading(false);
       }
     );
-
-    // Initial session check
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          await handleUserProfile(session.user);
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
 
     return () => {
       subscription?.unsubscribe();
     };
   }, []);
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  const signUp = async (email: string, password: string, displayName?: string): Promise<AuthOperationResult<SignUpResultData>> => {
     try {
       setLoading(true);
       
@@ -184,21 +187,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('No user data returned from signup');
       }
 
-      // Profile will be handled by the auth state change listener
-      toast({
-        title: 'Success!',
-        description: 'Please check your email to confirm your account.',
-      });
-
+      // The caller surfaces the success toast so we avoid duplicate toasts.
       return { data: authData, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign up error:', error);
       
       let errorMessage = 'Failed to create account';
-      if (error.message.includes('already registered')) {
+      const errorMessageFromError =
+        error instanceof Error ? error.message : typeof error === 'string' ? error : null;
+
+      if (errorMessageFromError?.includes('already registered')) {
         errorMessage = 'This email is already registered. Please try logging in instead.';
-      } else if (error.message) {
-        errorMessage = error.message;
+      } else if (errorMessageFromError) {
+        errorMessage = errorMessageFromError;
       }
       
       toast({
@@ -208,7 +209,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       return { 
-        error: typeof error === 'object' ? error : new Error(errorMessage),
+        error: error instanceof Error ? error : new Error(errorMessage),
         data: null 
       };
     } finally {
@@ -216,7 +217,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<AuthOperationResult<SignInResultData>> => {
     try {
       setLoading(true);
       
@@ -232,11 +233,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       return { data, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign in error:', error);
       
       let errorMessage = 'Failed to sign in. Please check your credentials.';
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         errorMessage = error.message;
       }
       
@@ -247,7 +248,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       return { 
-        error: typeof error === 'object' ? error : new Error(errorMessage),
+        error: error instanceof Error ? error : new Error(errorMessage),
         data: null 
       };
     } finally {
@@ -255,25 +256,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     try {
       setLoading(true);
-      console.log('[Auth] signOut requested');
 
-      // Sign out of current session
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
 
-      // Extra guard: remove any cached Supabase session keys
       try {
         Object.keys(localStorage)
           .filter((key) => key.startsWith('sb-'))
           .forEach((key) => localStorage.removeItem(key));
-        console.log('[Auth] Cleared cached Supabase session keys');
-      } catch (storageError) {
-        console.warn('[Auth] Unable to clear cached supabase keys', storageError);
+      } catch {
+        // localStorage cleanup is best-effort
       }
-      console.log('[Auth] Supabase signOut completed');
 
       // Clear all local auth state
       setUser(null);
@@ -290,12 +286,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Navigate to home after successful sign out
       navigate('/', { replace: true });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error signing out:', error);
-      console.log('[Auth] signOut error details:', error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : 'There was an error signing out. Please try again.';
       toast({
         title: 'Error',
-        description: error?.message || 'There was an error signing out. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

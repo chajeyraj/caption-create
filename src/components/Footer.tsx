@@ -94,13 +94,18 @@ export const Footer = () => {
                   Quick Links
                 </h3>
                 <ul className="space-y-2">
-                  {["Home", "Explore", "Categories", "Trending"].map((text, i) => (
-                    <li key={i}>
+                  {[
+                    { label: "Home", to: "/" },
+                    { label: "Explore", to: "/explore" },
+                    { label: "Categories", to: "/categories" },
+                    { label: "Trending", to: "/trending" },
+                  ].map(({ label, to }) => (
+                    <li key={to}>
                       <Link
-                        to={`/${text.toLowerCase()}`}
+                        to={to}
                         className="hover:text-cyan-400 transition-colors duration-300"
                       >
-                        {text}
+                        {label}
                       </Link>
                     </li>
                   ))}
@@ -113,10 +118,10 @@ export const Footer = () => {
                   Categories
                 </h3>
                 <ul className="space-y-2">
-                  {["Motivational", "Funny", "Attitude", "Instagram"].map((text, i) => (
-                    <li key={i}>
+                  {["Motivational", "Funny", "Love & Romance", "Life Quotes"].map((text) => (
+                    <li key={text}>
                       <Link
-                        to={`/category/${text}`}
+                        to={`/category/${encodeURIComponent(text)}`}
                         className="hover:text-green-400 transition-colors duration-300"
                       >
                         {text}
@@ -198,7 +203,7 @@ export const Footer = () => {
         </div>
 
         <p className="text-xs text-white/60 mt-4 md:mt-0">
-          © 2025 Axzell Innovations. All rights reserved.
+          © {new Date().getFullYear()} Axzell Innovations. All rights reserved.
         </p>
       </div>
     </div>
