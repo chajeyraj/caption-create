@@ -119,8 +119,11 @@ export const AuthModal = ({
         onClose();
         onAuthSuccess?.();
       } else {
-        toast({ title: 'Check your email', description: 'We sent a confirmation link to verify your account.' });
-        setTimeout(() => switchTo('login'), 2000);
+        toast({
+          title: 'Signup needs auth config update',
+          description: 'Disable email confirmations in Supabase Auth so new users are auto-confirmed and logged in.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'An unexpected error occurred';
