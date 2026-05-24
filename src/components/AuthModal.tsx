@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 
-type Mode = 'login' | 'signup' | 'forgot';
+type Mode = 'login' | 'signup';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export const AuthModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -56,25 +56,6 @@ export const AuthModal = ({
     setMode(next);
     setContentKey((k) => k + 1);
     setEmail(''); setPassword(''); setDisplayName(''); setShowPassword(false);
-  };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({ title: 'Error', description: 'Please enter your email address', variant: 'destructive' });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const { error } = await resetPassword(email);
-      if (error) throw error;
-      toast({ title: 'Email sent', description: 'Check your inbox for a password reset link.' });
-      setTimeout(() => switchTo('login'), 2000);
-    } catch (error) {
-      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to send reset email', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -186,56 +167,7 @@ export const AuthModal = ({
 
         {/* Sliding content */}
         <div key={contentKey} className={`p-8 relative z-10 ${slideClass}`}>
-          {mode === 'forgot' ? (
-            <>
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl mb-4"
-                  style={{ background: 'hsl(38 90% 54% / 0.12)', border: '1px solid hsl(38 90% 54% / 0.2)' }}>
-                  <Sparkles className="h-5 w-5" style={{ color: 'hsl(38, 90%, 60%)' }} />
-                </div>
-                <h2 className="font-display font-bold text-3xl mb-1 text-gradient-amber-violet">
-                  Reset Password
-                </h2>
-                <p className="text-sm" style={{ color: 'hsl(260, 8%, 52%)' }}>
-                  We'll send a reset link to your email
-                </p>
-              </div>
-
-              <form onSubmit={handleForgotPassword} className="space-y-5">
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
-                    Email
-                  </label>
-                  <Input
-                    type="email" placeholder="name@example.com"
-                    value={email} onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading} autoComplete="email" autoFocus
-                    className="w-full placeholder:text-[hsl(260,8%,38%)] focus-visible:ring-1 focus-visible:ring-[hsl(38,90%,54%)]"
-                    style={inputStyle}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-11 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
-                    color: 'hsl(232, 20%, 7%)',
-                    boxShadow: '0 4px 20px hsl(38 90% 54% / 0.3)',
-                  }}
-                >
-                  {isLoading ? 'Sending…' : 'Send Reset Link'}
-                </button>
-              </form>
-
-              <p className="text-center text-sm mt-6" style={{ color: 'hsl(260, 8%, 50%)' }}>
-                <button type="button" className="font-medium hover:underline transition-colors" style={{ color: 'hsl(38, 90%, 60%)' }} onClick={() => switchTo('login')}>
-                  Back to sign in
-                </button>
-              </p>
-            </>
-          ) : mode === 'login' ? (
+          {mode === 'login' ? (
             <>
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl mb-4"
@@ -265,14 +197,9 @@ export const AuthModal = ({
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'hsl(40, 20%, 65%)' }}>
-                      Password
-                    </label>
-                    <button type="button" className="text-xs hover:underline transition-colors" style={{ color: 'hsl(38, 90%, 60%)' }} onClick={() => switchTo('forgot')}>
-                      Forgot password?
-                    </button>
-                  </div>
+                  <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'hsl(40, 20%, 65%)' }}>
+                    Password
+                  </label>
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'} placeholder="••••••••"

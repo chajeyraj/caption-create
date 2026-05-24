@@ -159,7 +159,7 @@ export const CaptionCard = ({
     }
   };
 
-  const shareUrl = `${window.location.origin}/category/${encodeURIComponent(category)}`;
+  const shareUrl = `${window.location.origin}/category/${encodeURIComponent(category)}?caption=${encodeURIComponent(id)}`;
   const shareText = `"${caption}" — ${author}`;
 
   const openShareMenu = () => {

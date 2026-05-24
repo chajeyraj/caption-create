@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CaptionCard } from "@/components/CaptionCard";
@@ -32,6 +32,8 @@ interface Caption {
 const CategoryCaptions = () => {
   const { category = '' } = useParams<{ category: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sharedCaptionId = searchParams.get("caption");
   const { user } = useAuth();
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,8 +165,26 @@ const CategoryCaptions = () => {
 
   // Reset to first page when search query changes
   useEffect(() => {
+    if (sharedCaptionId) return;
     setCurrentPage(1);
-  }, [searchQuery, category]);
+  }, [searchQuery, category, sharedCaptionId]);
+
+  useEffect(() => {
+    if (!sharedCaptionId || captions.length === 0) return;
+
+    const captionIndex = captions.findIndex((caption) => caption.id === sharedCaptionId);
+    if (captionIndex === -1) return;
+
+    setSearchQuery("");
+    setCurrentPage(Math.floor(captionIndex / itemsPerPage) + 1);
+  }, [captions, sharedCaptionId]);
+
+  useEffect(() => {
+    if (!sharedCaptionId || currentCaptions.length === 0) return;
+
+    const target = document.getElementById(`caption-${sharedCaptionId}`);
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [currentCaptions, sharedCaptionId]);
 
   const handleLikeUpdate = (captionId: string, newLikeCount: number, isLiked: boolean) => {
     setCaptions((prev) =>
@@ -269,7 +289,16 @@ const CategoryCaptions = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {currentCaptions.map((captionData) => (
-                  <div key={captionData.id}>
+                  <div
+                    key={captionData.id}
+                    id={`caption-${captionData.id}`}
+                    className="scroll-mt-28 rounded-2xl transition-shadow duration-500"
+                    style={
+                      captionData.id === sharedCaptionId
+                        ? { boxShadow: "0 0 0 2px hsl(38 90% 54% / 0.9), 0 0 32px hsl(38 90% 54% / 0.22)" }
+                        : undefined
+                    }
+                  >
                     <CaptionCard 
                       id={captionData.id}
                       caption={captionData.content}
@@ -345,4 +374,3 @@ const CategoryCaptions = () => {
 };
 
 export default CategoryCaptions;
-
