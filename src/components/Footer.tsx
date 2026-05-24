@@ -11,9 +11,9 @@ export const Footer = () => {
           onClick={() => setVisible(true)}
           className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105"
           style={{
-            background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
-            color: 'hsl(232, 20%, 7%)',
-            boxShadow: '0 4px 20px hsl(38 90% 54% / 0.4)',
+            background: 'var(--gradient-primary)',
+            color: 'hsl(var(--primary-foreground))',
+            boxShadow: '0 4px 20px hsl(var(--primary) / 0.4)',
           }}
         >
           Show Footer ↑
@@ -25,7 +25,7 @@ export const Footer = () => {
   return (
     <footer
       className="relative overflow-hidden mt-auto"
-      style={{ background: 'linear-gradient(160deg, hsl(232, 25%, 8%) 0%, hsl(235, 20%, 6%) 100%)' }}
+      style={{ background: 'hsl(var(--background))' }}
     >
       {/* Hide button */}
       <div className="absolute top-6 right-6 z-20">
@@ -33,9 +33,9 @@ export const Footer = () => {
           onClick={() => setVisible(false)}
           className="px-3 py-1.5 text-xs rounded-full transition-all duration-200 hover:scale-105"
           style={{
-            background: 'hsl(40 20% 92% / 0.06)',
-            border: '1px solid hsl(40 20% 92% / 0.12)',
-            color: 'hsl(40, 20%, 60%)',
+            background: 'hsl(var(--muted))',
+            border: '1px solid hsl(var(--border))',
+            color: 'hsl(var(--muted-foreground))',
           }}
         >
           ✖ Hide
@@ -46,11 +46,11 @@ export const Footer = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <div
           className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full blur-[100px]"
-          style={{ background: 'radial-gradient(circle, hsl(38 90% 54% / 0.08) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, transparent 70%)' }}
         />
         <div
           className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-[100px]"
-          style={{ background: 'radial-gradient(circle, hsl(271 60% 65% / 0.07) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.07) 0%, transparent 70%)' }}
         />
         <div className="absolute inset-0 bg-grid-dots opacity-40" />
       </div>
@@ -70,11 +70,11 @@ export const Footer = () => {
                   t.onerror = null; t.src = "/logo.png"; t.className = "h-9 w-9";
                 }}
               />
-              <span className="text-xl font-bold font-display" style={{ color: 'hsl(40, 20%, 92%)' }}>
-                Caption<span style={{ color: 'hsl(38, 90%, 58%)' }}>Crafter</span>
+              <span className="text-xl font-bold font-display" style={{ color: 'hsl(var(--foreground))' }}>
+                Caption<span style={{ color: 'hsl(var(--primary))' }}>Crafter</span>
               </span>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'hsl(260, 8%, 55%)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'hsl(var(--muted-foreground))' }}>
               Unleash your words, inspire the world. Create and share the perfect captions for every moment.
             </p>
 
@@ -89,8 +89,8 @@ export const Footer = () => {
                 <h3
                   className="font-semibold text-sm mb-4 uppercase tracking-widest pl-3"
                   style={{
-                    color: 'hsl(40, 20%, 92%)',
-                    borderLeft: '2px solid hsl(38, 90%, 54%)',
+                    color: 'hsl(var(--foreground))',
+                    borderLeft: '2px solid hsl(var(--primary))',
                   }}
                 >
                   Quick Links
@@ -107,9 +107,9 @@ export const Footer = () => {
                         to={to}
                         onClick={() => window.scrollTo({ top: 0 })}
                         className="text-sm transition-colors duration-200"
-                        style={{ color: 'hsl(260, 8%, 52%)' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(38, 90%, 60%)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'hsl(260, 8%, 52%)')}
+                        style={{ color: 'hsl(var(--muted-foreground))' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(var(--primary))')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = 'hsl(var(--muted-foreground))')}
                       >
                         {label}
                       </Link>
@@ -123,8 +123,8 @@ export const Footer = () => {
                 <h3
                   className="font-semibold text-sm mb-4 uppercase tracking-widest pl-3"
                   style={{
-                    color: 'hsl(40, 20%, 92%)',
-                    borderLeft: '2px solid hsl(271, 60%, 65%)',
+                    color: 'hsl(var(--foreground))',
+                    borderLeft: '2px solid hsl(var(--accent))',
                   }}
                 >
                   Categories
@@ -135,9 +135,9 @@ export const Footer = () => {
                       <Link
                         to={`/category/${encodeURIComponent(text)}`}
                         className="text-sm transition-colors duration-200"
-                        style={{ color: 'hsl(260, 8%, 52%)' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(271, 60%, 72%)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = 'hsl(260, 8%, 52%)')}
+                        style={{ color: 'hsl(var(--muted-foreground))' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = 'hsl(var(--accent))')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = 'hsl(var(--muted-foreground))')}
                       >
                         {text}
                       </Link>
@@ -155,15 +155,15 @@ export const Footer = () => {
           <div
             className="rounded-2xl p-5 sm:p-8"
             style={{
-              background: 'hsl(40 20% 92% / 0.03)',
-              border: '1px solid hsl(40 20% 92% / 0.08)',
+              background: 'hsl(var(--muted) / 0.3)',
+              border: '1px solid hsl(var(--border) / 0.5)',
               backdropFilter: 'blur(8px)',
             }}
           >
             <div className="flex flex-col items-center text-center gap-5">
               {/* Developer */}
               <div>
-                <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'hsl(260, 8%, 45%)' }}>
+                <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   Developed by
                 </p>
                 <p className="text-xl font-bold font-display text-gradient-amber">
@@ -177,19 +177,19 @@ export const Footer = () => {
                   <a
                     href="tel:+94768180977"
                     className="text-xs transition-colors duration-200 hover:text-foreground"
-                    style={{ color: 'hsl(260, 8%, 48%)' }}
+                    style={{ color: 'hsl(var(--muted-foreground))' }}
                   >
                     📞 +94 (76) 818-0977
                   </a>
                   <a
                     href="mailto:social@axzellin.com"
                     className="text-xs transition-colors duration-200 hover:text-foreground"
-                    style={{ color: 'hsl(260, 8%, 48%)' }}
+                    style={{ color: 'hsl(var(--muted-foreground))' }}
                   >
                     ✉️ social@axzellin.com
                   </a>
                 </div>
-                <p className="text-xs" style={{ color: 'hsl(260, 8%, 38%)' }}>
+                <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground) / 0.7)' }}>
                   © {new Date().getFullYear()} axzell innovations. All rights reserved.
                 </p>
               </div>

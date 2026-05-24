@@ -44,7 +44,7 @@ const LiquidHeart = ({
           key={rippleKey}
           className="absolute inset-0 rounded-full animate-like-ripple"
           style={{
-            background: liked ? 'hsl(0, 80%, 65%)' : 'hsl(260, 8%, 55%)',
+            background: liked ? 'hsl(0, 80%, 65%)' : 'hsl(var(--muted-foreground) / 0.4)',
           }}
         />
       )}
@@ -53,7 +53,7 @@ const LiquidHeart = ({
         {/* Outline heart */}
         <path
           d={path}
-          stroke={liked ? 'hsl(0, 80%, 65%)' : 'hsl(260, 8%, 52%)'}
+          stroke={liked ? 'hsl(0, 80%, 65%)' : 'hsl(var(--muted-foreground))'}
           style={{ transition: 'stroke 0.25s ease' }}
         />
         {/* Liquid fill — clips from bottom upward */}
@@ -254,26 +254,25 @@ export const CaptionCard = ({
       <div
         className="relative overflow-hidden rounded-2xl transition-all duration-300"
         style={{
-          background: 'hsl(235, 18%, 10%)',
-          borderLeft: '3px solid hsl(38, 90%, 54%)',
-          borderTop: '1px solid hsl(240, 12%, 19%)',
-          borderRight: '1px solid hsl(240, 12%, 19%)',
-          borderBottom: '1px solid hsl(240, 12%, 19%)',
-          boxShadow: '0 4px 24px hsl(0 0% 0% / 0.35)',
+          background: 'hsl(var(--card))',
+          borderLeft: '3px solid hsl(var(--primary))',
+          borderTop: '1px solid hsl(var(--border))',
+          borderRight: '1px solid hsl(var(--border))',
+          borderBottom: '1px solid hsl(var(--border))',
+          boxShadow: 'var(--shadow-card)',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLDivElement).style.boxShadow =
-            '0 14px 50px hsl(0 0% 0% / 0.55), 0 0 0 1px hsl(38 90% 54% / 0.12)';
+            '0 14px 50px hsl(var(--foreground) / 0.12), 0 0 0 1px hsl(var(--primary) / 0.2)';
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow =
-            '0 4px 24px hsl(0 0% 0% / 0.35)';
+          (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-card)';
         }}
       >
         {/* Decorative quote glyph */}
         <div
           className="absolute top-0 right-4 font-display font-bold pointer-events-none select-none"
-          style={{ fontSize: '7rem', color: 'hsl(38 90% 54% / 0.07)', lineHeight: 1 }}
+          style={{ fontSize: '7rem', color: 'hsl(var(--primary) / 0.07)', lineHeight: 1 }}
           aria-hidden
         >
           &#8220;
@@ -290,15 +289,15 @@ export const CaptionCard = ({
                   <AvatarFallback
                     className="text-xs font-semibold"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(38,90%,54%), hsl(25,90%,58%))',
-                      color: 'hsl(232,20%,7%)',
+                      background: 'var(--gradient-primary)',
+                      color: 'hsl(var(--primary-foreground))',
                     }}
                   >
                     {author.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 )}
               </Avatar>
-              <p className="text-sm font-medium truncate" style={{ color: 'hsl(40,20%,78%)' }}>
+              <p className="text-sm font-medium truncate" style={{ color: 'hsl(var(--foreground) / 0.75)' }}>
                 {author}
               </p>
             </div>
@@ -318,15 +317,15 @@ export const CaptionCard = ({
           {/* Caption — italic Lora */}
           <div className="min-h-[80px] flex items-start pt-1">
             <p
-              className="caption-quote leading-relaxed text-base transition-colors duration-300 group-hover:text-[hsl(40,20%,95%)]"
-              style={{ color: 'hsl(40,20%,82%)' }}
+              className="caption-quote leading-relaxed text-base transition-colors duration-300 group-hover:text-foreground"
+              style={{ color: 'hsl(var(--foreground) / 0.85)' }}
             >
               &#8220;{caption}&#8221;
             </p>
           </div>
 
           {/* Action bar */}
-          <div className="flex items-center gap-1 pt-3" style={{ borderTop: '1px solid hsl(240,12%,20%)' }}>
+          <div className="flex items-center gap-1 pt-3" style={{ borderTop: '1px solid hsl(var(--border))' }}>
 
             {/* Like — liquid fill heart */}
             <button
@@ -334,7 +333,7 @@ export const CaptionCard = ({
               disabled={isUpdating}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
               style={{
-                color: isLiked ? 'hsl(0,80%,65%)' : 'hsl(260,8%,52%)',
+                color: isLiked ? 'hsl(0,80%,65%)' : 'hsl(var(--muted-foreground))',
                 background: isLiked ? 'hsl(0 80% 65% / 0.1)' : 'transparent',
               }}
             >
@@ -349,7 +348,7 @@ export const CaptionCard = ({
               <button
                 onClick={handleShare}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-150 hover:scale-105 active:scale-95 hover:text-foreground"
-                style={{ color: showShareMenu ? 'hsl(38,90%,60%)' : 'hsl(260,8%,52%)' }}
+                style={{ color: showShareMenu ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}
               >
                 <Share className="h-4 w-4" />
               </button>
@@ -359,14 +358,14 @@ export const CaptionCard = ({
                 <div
                   className="absolute bottom-full left-0 mb-2 w-52 rounded-xl overflow-hidden z-50 animate-spring-in"
                   style={{
-                    background: 'hsl(235,22%,13%)',
-                    border: '1px solid hsl(240,12%,24%)',
-                    boxShadow: '0 16px 48px hsl(0 0% 0% / 0.55)',
+                    background: 'hsl(var(--popover))',
+                    border: '1px solid hsl(var(--border))',
+                    boxShadow: '0 16px 48px hsl(var(--foreground) / 0.15)',
                   }}
                 >
-                  <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid hsl(240,12%,20%)' }}>
-                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(40,20%,55%)' }}>Share</span>
-                    <button onClick={() => setShowShareMenu(false)} style={{ color: 'hsl(260,8%,48%)' }}>
+                  <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid hsl(var(--border))' }}>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(var(--muted-foreground))' }}>Share</span>
+                    <button onClick={() => setShowShareMenu(false)} style={{ color: 'hsl(var(--muted-foreground))' }}>
                       <XIcon className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -375,9 +374,9 @@ export const CaptionCard = ({
                       key={label}
                       onClick={action}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150"
-                      style={{ color: 'hsl(40,20%,72%)' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(40 20% 92% / 0.05)'; (e.currentTarget as HTMLElement).style.color = 'hsl(40,20%,92%)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(40,20%,72%)'; }}
+                      style={{ color: 'hsl(var(--foreground) / 0.7)' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'hsl(var(--muted))'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground) / 0.7)'; }}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
                       {label}
@@ -392,7 +391,7 @@ export const CaptionCard = ({
               onClick={handleCopy}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 hover:scale-105 active:scale-95 ml-auto"
               style={{
-                color: copied ? 'hsl(142,70%,52%)' : 'hsl(260,8%,52%)',
+                color: copied ? 'hsl(142,70%,52%)' : 'hsl(var(--muted-foreground))',
                 background: copied ? 'hsl(142 70% 52% / 0.1)' : 'transparent',
               }}
             >

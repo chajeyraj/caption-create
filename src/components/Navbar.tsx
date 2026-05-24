@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks";
 import { Input } from "@/components/ui/input";
 import { Menu, X, Search, User, PenLine } from "lucide-react";
 import { AuthModal } from "./AuthModal";
+import { ThemeToggle } from "./ThemeToggle";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { VLink } from "@/components/VLink";
 import { useViewNavigate } from "@/hooks/useViewNavigate";
@@ -63,13 +64,11 @@ export const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
       style={{
         background: isScrolled
-          ? 'hsl(232, 20%, 7% / 0.95)'
-          : 'hsl(232, 20%, 7% / 0.7)',
+          ? 'hsl(var(--background) / 0.95)'
+          : 'hsl(var(--background) / 0.7)',
         backdropFilter: 'blur(16px)',
-        borderBottom: isScrolled
-          ? '1px solid hsl(240, 12%, 20%)'
-          : '1px solid hsl(240, 12%, 14%)',
-        boxShadow: isScrolled ? '0 4px 30px hsl(0 0% 0% / 0.3)' : 'none',
+        borderBottom: `1px solid hsl(var(--border) / ${isScrolled ? '0.8' : '0.5'})`,
+        boxShadow: isScrolled ? 'var(--shadow-card)' : 'none',
       }}
     >
       <div className="container mx-auto px-4">
@@ -90,9 +89,9 @@ export const Navbar = () => {
             />
             <span
               className="text-lg font-bold font-display tracking-tight transition-opacity duration-200 group-hover:opacity-80"
-              style={{ color: 'hsl(40, 20%, 92%)' }}
+              style={{ color: 'hsl(var(--foreground))' }}
             >
-              Caption<span style={{ color: 'hsl(38, 90%, 58%)' }}>Crafter</span>
+              Caption<span style={{ color: 'hsl(var(--primary))' }}>Crafter</span>
             </span>
           </VLink>
 
@@ -103,12 +102,12 @@ export const Navbar = () => {
                 key={to}
                 to={to}
                 className="relative pb-0.5 text-sm font-medium transition-colors duration-200 group"
-                style={{ color: isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)' }}
+                style={{ color: isActive(to) ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}
                 onMouseEnter={(e) => {
-                  if (!isActive(to)) (e.currentTarget as HTMLElement).style.color = 'hsl(40, 20%, 92%)';
+                  if (!isActive(to)) (e.currentTarget as HTMLElement).style.color = 'hsl(var(--foreground))';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)';
+                  (e.currentTarget as HTMLElement).style.color = isActive(to) ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))';
                 }}
               >
                 {label}
@@ -117,7 +116,7 @@ export const Navbar = () => {
                   style={{
                     width: '100%',
                     transform: isActive(to) ? 'scaleX(1)' : 'scaleX(0)',
-                    background: 'linear-gradient(90deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
+                    background: 'var(--gradient-primary)',
                   }}
                 />
               </VLink>
@@ -126,6 +125,7 @@ export const Navbar = () => {
 
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             {!loading && (
               <>
                 {user ? (
@@ -134,9 +134,9 @@ export const Navbar = () => {
                       aria-label="Profile"
                       className="h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
                       style={{
-                        border: '1px solid hsl(38 90% 54% / 0.4)',
-                        background: 'hsl(38 90% 54% / 0.08)',
-                        color: 'hsl(38, 90%, 62%)',
+                        border: '1px solid hsl(var(--primary) / 0.4)',
+                        background: 'hsl(var(--primary) / 0.08)',
+                        color: 'hsl(var(--primary))',
                       }}
                     >
                       <User className="h-4 w-4" />
@@ -148,9 +148,9 @@ export const Navbar = () => {
                     aria-label="Sign in"
                     className="h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105"
                     style={{
-                      border: '1px solid hsl(40 20% 92% / 0.15)',
-                      background: 'hsl(40 20% 92% / 0.05)',
-                      color: 'hsl(40, 20%, 72%)',
+                      border: '1px solid hsl(var(--border))',
+                      background: 'hsl(var(--muted))',
+                      color: 'hsl(var(--muted-foreground))',
                     }}
                   >
                     <User className="h-4 w-4" />
@@ -163,7 +163,7 @@ export const Navbar = () => {
           {/* Mobile hamburger */}
           <button
             className="md:hidden h-9 w-9 flex items-center justify-center rounded-lg transition-colors"
-            style={{ color: 'hsl(40, 20%, 75%)', background: 'transparent' }}
+            style={{ color: 'hsl(var(--muted-foreground))', background: 'transparent' }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -174,18 +174,18 @@ export const Navbar = () => {
         {isMenuOpen && (
           <div
             className="md:hidden py-4 animate-fade-in"
-            style={{ borderTop: '1px solid hsl(240, 12%, 18%)' }}
+            style={{ borderTop: '1px solid hsl(var(--border))' }}
           >
             <div className="flex flex-col gap-4">
               {/* Search */}
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'hsl(260, 8%, 50%)' }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
                 <Input
                   placeholder="Search captions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
-                  style={{ background: 'hsl(240, 10%, 13%)', border: '1px solid hsl(240, 12%, 22%)', color: 'hsl(40, 20%, 85%)' }}
+                  style={{ background: 'hsl(var(--input))', border: '1px solid hsl(var(--border))', color: 'hsl(var(--foreground))' }}
                 />
               </form>
 
@@ -195,20 +195,21 @@ export const Navbar = () => {
                   key={to}
                   to={to}
                   className="py-2 text-sm font-medium transition-colors"
-                  style={{ color: isActive(to) ? 'hsl(38, 90%, 60%)' : 'hsl(40, 20%, 68%)' }}
+                  style={{ color: isActive(to) ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {label}
                 </VLink>
               ))}
 
-              <div className="flex flex-col gap-3 pt-3" style={{ borderTop: '1px solid hsl(240, 12%, 18%)' }}>
+              <div className="flex flex-col gap-3 pt-3" style={{ borderTop: '1px solid hsl(var(--border))' }}>
+                <ThemeToggle />
                 {!loading && (
                   user ? (
                     <VLink to="/profile" onClick={() => setIsMenuOpen(false)}>
                       <button
                         className="h-9 w-9 rounded-full flex items-center justify-center transition-all"
-                        style={{ border: '1px solid hsl(38 90% 54% / 0.4)', background: 'hsl(38 90% 54% / 0.08)', color: 'hsl(38, 90%, 62%)' }}
+                        style={{ border: '1px solid hsl(var(--primary) / 0.4)', background: 'hsl(var(--primary) / 0.08)', color: 'hsl(var(--primary))' }}
                       >
                         <User className="h-4 w-4" />
                       </button>
@@ -217,7 +218,7 @@ export const Navbar = () => {
                     <button
                       onClick={handleOpenAuthModal}
                       className="h-9 w-9 rounded-full flex items-center justify-center transition-all"
-                      style={{ border: '1px solid hsl(40 20% 92% / 0.15)', background: 'hsl(40 20% 92% / 0.05)', color: 'hsl(40, 20%, 72%)' }}
+                      style={{ border: '1px solid hsl(var(--border))', background: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }}
                     >
                       <User className="h-4 w-4" />
                     </button>
@@ -227,8 +228,8 @@ export const Navbar = () => {
                 <button
                   className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%))',
-                    color: 'hsl(232, 20%, 7%)',
+                    background: 'var(--gradient-primary)',
+                    color: 'hsl(var(--primary-foreground))',
                   }}
                   onClick={() => {
                     setIsMenuOpen(false);

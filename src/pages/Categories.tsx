@@ -28,7 +28,7 @@ const Categories = () => {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: 'hsl(235,22%,8%)' }}>
+    <div className="min-h-screen" style={{ background: 'hsl(var(--background))' }}>
       <Navbar />
 
       <main className="pt-24 pb-16 px-4">
@@ -38,11 +38,11 @@ const Categories = () => {
           <div className="text-center mb-10 sm:mb-14">
             <h1
               className="font-display font-bold mb-3"
-              style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'hsl(40,20%,92%)' }}
+              style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', color: 'hsl(var(--foreground))' }}
             >
               Browse Categories
             </h1>
-            <p className="text-sm sm:text-lg max-w-2xl mx-auto" style={{ color: 'hsl(260,8%,55%)' }}>
+            <p className="text-sm sm:text-lg max-w-2xl mx-auto" style={{ color: 'hsl(var(--muted-foreground))' }}>
               Find the perfect caption for every moment and mood
             </p>
           </div>
@@ -53,14 +53,14 @@ const Categories = () => {
                 <div
                   key={i}
                   className="relative overflow-hidden rounded-2xl"
-                  style={{ height: '160px', background: 'hsl(235,18%,10%)', border: '1px solid hsl(240,12%,18%)' }}
+                  style={{ height: '160px', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-shimmer-slide" />
                 </div>
               ))}
             </div>
           ) : error ? (
-            <div className="text-center py-12" style={{ color: 'hsl(0,72%,55%)' }}>{error}</div>
+            <div className="text-center py-12" style={{ color: 'hsl(var(--destructive))' }}>{error}</div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {CATEGORY_META.map((category, index) => {
@@ -78,19 +78,19 @@ const Categories = () => {
                     <div
                       className="relative overflow-hidden rounded-2xl p-3 sm:p-6 transition-all duration-300 cursor-pointer h-full"
                       style={{
-                        background: 'hsl(235,18%,10%)',
-                        border: '1px solid hsl(240,12%,18%)',
-                        boxShadow: '0 4px 20px hsl(0 0% 0% / 0.25)',
+                        background: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        boxShadow: '0 4px 20px hsl(var(--foreground) / 0.06)',
                       }}
                       onMouseEnter={(e) => {
                         const el = e.currentTarget as HTMLDivElement;
                         el.style.transform = 'translateY(-4px) scale(1.01)';
-                        el.style.boxShadow = '0 16px 48px hsl(0 0% 0% / 0.45), 0 0 0 1px hsl(240,12%,24%)';
+                        el.style.boxShadow = '0 16px 48px hsl(var(--foreground) / 0.12), 0 0 0 1px hsl(var(--border))';
                       }}
                       onMouseLeave={(e) => {
                         const el = e.currentTarget as HTMLDivElement;
                         el.style.transform = 'translateY(0) scale(1)';
-                        el.style.boxShadow = '0 4px 20px hsl(0 0% 0% / 0.25)';
+                        el.style.boxShadow = '0 4px 20px hsl(var(--foreground) / 0.06)';
                       }}
                     >
                       {/* Icon + count */}
@@ -103,9 +103,9 @@ const Categories = () => {
                         <span
                           className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full"
                           style={{
-                            background: 'hsl(40 20% 92% / 0.06)',
-                            color: 'hsl(260,8%,52%)',
-                            border: '1px solid hsl(40 20% 92% / 0.09)',
+                            background: 'hsl(var(--muted))',
+                            color: 'hsl(var(--muted-foreground))',
+                            border: '1px solid hsl(var(--border))',
                           }}
                         >
                           {count}
@@ -115,17 +115,17 @@ const Categories = () => {
 
                       <h3
                         className="font-display font-semibold text-sm sm:text-lg mb-1 sm:mb-1.5 transition-colors duration-200"
-                        style={{ color: 'hsl(40,20%,88%)' }}
+                        style={{ color: 'hsl(var(--foreground))' }}
                       >
                         {category.name}
                       </h3>
-                      <p className="hidden sm:block text-sm leading-relaxed mb-4" style={{ color: 'hsl(260,8%,50%)' }}>
+                      <p className="hidden sm:block text-sm leading-relaxed mb-4" style={{ color: 'hsl(var(--muted-foreground))' }}>
                         {category.description}
                       </p>
 
                       <div
                         className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium transition-colors duration-200 mt-2 sm:mt-0"
-                        style={{ color: 'hsl(38,90%,56%)' }}
+                        style={{ color: 'hsl(var(--primary))' }}
                       >
                         <span className="hidden sm:inline">Browse Captions</span>
                         <span className="sm:hidden">Browse</span>

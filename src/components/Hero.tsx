@@ -62,21 +62,21 @@ export const Hero = () => {
   return (
     <section
       className="relative overflow-hidden min-h-screen flex items-center"
-      style={{ background: 'linear-gradient(160deg, hsl(232,35%,9%) 0%, hsl(240,25%,7%) 55%, hsl(232,20%,6%) 100%)' }}
+      style={{ background: 'var(--gradient-hero)' }}
     >
       {/* Ambient glow orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full blur-[120px] animate-float"
-          style={{ background: 'radial-gradient(circle, hsl(38 90% 54% / 0.18) 0%, transparent 70%)', animationDuration: '6s' }}
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%)', animationDuration: '6s' }}
         />
         <div
           className="absolute top-1/2 -left-32 w-[420px] h-[420px] rounded-full blur-[100px] animate-float"
-          style={{ background: 'radial-gradient(circle, hsl(271 60% 65% / 0.12) 0%, transparent 70%)', animationDelay: '2s', animationDuration: '7s' }}
+          style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.12) 0%, transparent 70%)', animationDelay: '2s', animationDuration: '7s' }}
         />
         <div
           className="absolute -bottom-16 right-1/4 w-[360px] h-[360px] rounded-full blur-[90px] animate-float"
-          style={{ background: 'radial-gradient(circle, hsl(38 90% 54% / 0.1) 0%, transparent 70%)', animationDelay: '4s', animationDuration: '5s' }}
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, transparent 70%)', animationDelay: '4s', animationDuration: '5s' }}
         />
         <div className="absolute inset-0 bg-grid-dots opacity-60" />
       </div>
@@ -102,9 +102,9 @@ export const Hero = () => {
             <span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium tracking-widest uppercase"
               style={{
-                background: 'hsl(38 90% 54% / 0.1)',
-                border: '1px solid hsl(38 90% 54% / 0.25)',
-                color: 'hsl(38,85%,68%)',
+                background: 'hsl(var(--primary) / 0.1)',
+                border: '1px solid hsl(var(--primary) / 0.25)',
+                color: 'hsl(var(--primary))',
               }}
             >
               <Sparkles className="h-3 w-3" />
@@ -116,7 +116,7 @@ export const Hero = () => {
           <div className="mb-4 sm:mb-5" style={{ animationDelay: '0.1s' }}>
             <h1
               className="font-display font-bold leading-[1.08] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem]"
-              style={{ color: 'hsl(40,20%,92%)' }}
+              style={{ color: 'hsl(var(--foreground))' }}
             >
               <StaggeredHeading text="Craft Perfect" delay={80} />
               <span className="block mt-1">
@@ -138,12 +138,12 @@ export const Hero = () => {
           <div className="animate-fade-in mb-8 sm:mb-10" style={{ animationDelay: '0.45s' }}>
             <p
               className="text-sm sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-ui px-2 sm:px-0"
-              style={{ color: 'hsl(260,8%,60%)' }}
+              style={{ color: 'hsl(var(--muted-foreground))' }}
             >
               Browse thousands of captions across every mood, category, and language
               <span
                 className="inline-block w-0.5 h-5 ml-1 align-middle rounded-sm animate-blink"
-                style={{ background: 'hsl(38,90%,54%)' }}
+                style={{ background: 'hsl(var(--primary))' }}
               />
             </p>
           </div>
@@ -154,9 +154,9 @@ export const Hero = () => {
               onClick={handleStartCreating}
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, hsl(38,90%,54%), hsl(25,90%,58%))',
-                color: 'hsl(232,20%,7%)',
-                boxShadow: '0 0 30px hsl(38 90% 54% / 0.35), 0 4px 16px hsl(0 0% 0% / 0.3)',
+                background: 'var(--gradient-primary)',
+                color: 'hsl(var(--primary-foreground))',
+                boxShadow: '0 0 30px hsl(var(--primary) / 0.35), var(--shadow-card)',
                 minHeight: '52px',
                 fontFamily: 'DM Sans, sans-serif',
               }}
@@ -168,19 +168,19 @@ export const Hero = () => {
               onClick={() => viewNavigate('/explore')}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 rounded-2xl text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                background: 'hsl(40 20% 92% / 0.05)',
-                border: '1px solid hsl(40 20% 92% / 0.15)',
-                color: 'hsl(40,20%,80%)',
+                background: 'hsl(var(--muted))',
+                border: '1px solid hsl(var(--border))',
+                color: 'hsl(var(--foreground) / 0.8)',
                 minHeight: '52px',
                 fontFamily: 'DM Sans, sans-serif',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'hsl(40 20% 92% / 0.1)';
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(40 20% 92% / 0.25)';
+                (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--secondary))';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(var(--ring) / 0.4)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'hsl(40 20% 92% / 0.05)';
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(40 20% 92% / 0.15)';
+                (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--muted))';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(var(--border))';
               }}
             >
               Explore Captions
@@ -192,8 +192,8 @@ export const Hero = () => {
             <div
               className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/[.07] rounded-2xl overflow-hidden w-full sm:w-auto sm:inline-flex"
               style={{
-                border: '1px solid hsl(40 20% 92% / 0.08)',
-                background: 'hsl(40 20% 92% / 0.03)',
+                border: '1px solid hsl(var(--border) / 0.5)',
+                background: 'hsl(var(--muted) / 0.3)',
                 backdropFilter: 'blur(8px)',
               }}
             >
@@ -207,12 +207,12 @@ export const Hero = () => {
                   className="flex flex-col items-center px-6 py-4 sm:px-10 sm:py-6"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon className="h-4 w-4" style={{ color: 'hsl(38,90%,60%)' }} />
-                    <span className="text-2xl font-bold font-display" style={{ color: 'hsl(40,20%,92%)' }}>
+                    <Icon className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
+                    <span className="text-2xl font-bold font-display" style={{ color: 'hsl(var(--foreground))' }}>
                       <AnimatedNumber value={count} suffix="+" />
                     </span>
                   </div>
-                  <p className="text-xs tracking-wide uppercase" style={{ color: 'hsl(260,8%,50%)' }}>
+                  <p className="text-xs tracking-wide uppercase" style={{ color: 'hsl(var(--muted-foreground))' }}>
                     {label}
                   </p>
                 </div>

@@ -19,11 +19,11 @@ interface FeaturedCaption {
 
 /* Skeleton card that crossfades out once content loads */
 const SkeletonCard = ({ loaded }: { loaded: boolean }) => (
-  <div className="relative rounded-2xl overflow-hidden" style={{ height: '240px', background: 'hsl(235,18%,10%)', border: '1px solid hsl(240,12%,18%)', borderLeft: '3px solid hsl(240,12%,18%)' }}>
+  <div className="relative rounded-2xl overflow-hidden" style={{ height: '240px', background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderLeft: '3px solid hsl(var(--border))' }}>
     {/* Shimmer layer — crossfades out when loaded */}
     <div
       className={`skeleton-overlay absolute inset-0 ${loaded ? 'loaded' : ''}`}
-      style={{ background: 'hsl(235,18%,10%)' }}
+      style={{ background: 'hsl(var(--card))' }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent animate-shimmer-slide" />
     </div>
@@ -116,10 +116,10 @@ export const FeaturedSection = () => {
   };
 
   return (
-    <section className="py-16 sm:py-24 relative overflow-hidden" style={{ background: 'hsl(232,20%,7%)' }}>
+    <section className="py-16 sm:py-24 relative overflow-hidden" style={{ background: 'hsl(var(--background))' }}>
       {/* Top separator */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, hsl(38 90% 54% / 0.3), transparent)' }} />
+        style={{ background: 'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent)' }} />
 
       <div className="container mx-auto px-4 relative z-10">
 
@@ -127,15 +127,15 @@ export const FeaturedSection = () => {
         <div className="text-center mb-10 sm:mb-16 parallax-section-header">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5"
-            style={{ background: 'hsl(38 90% 54% / 0.1)', border: '1px solid hsl(38 90% 54% / 0.25)', color: 'hsl(38,85%,62%)' }}
+            style={{ background: 'hsl(var(--primary) / 0.1)', border: '1px solid hsl(var(--primary) / 0.25)', color: 'hsl(var(--primary))' }}
           >
             <Flame className="h-3.5 w-3.5" />
             Trending Now
           </div>
-          <h2 className="font-display font-bold mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', color: 'hsl(40,20%,92%)' }}>
+          <h2 className="font-display font-bold mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', color: 'hsl(var(--foreground))' }}>
             Featured Captions
           </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'hsl(260,8%,55%)' }}>
+          <p className="text-lg max-w-xl mx-auto" style={{ color: 'hsl(var(--muted-foreground))' }}>
             Discover the most loved captions from our community of creators
           </p>
         </div>
@@ -148,7 +148,7 @@ export const FeaturedSection = () => {
               <SkeletonCard key={`sk-${i}`} loaded={false} />
             ))
           ) : captions.length === 0 ? (
-            <div className="col-span-full text-center py-12" style={{ color: 'hsl(260,8%,45%)' }}>
+            <div className="col-span-full text-center py-12" style={{ color: 'hsl(var(--muted-foreground))' }}>
               No featured captions yet. Be the first to like a caption!
             </div>
           ) : (
@@ -181,9 +181,9 @@ export const FeaturedSection = () => {
             <button
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 h-12 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, hsl(38,90%,54%), hsl(25,90%,58%))',
-                color: 'hsl(232,20%,7%)',
-                boxShadow: '0 4px 20px hsl(38 90% 54% / 0.3)',
+                background: 'var(--gradient-primary)',
+                color: 'hsl(var(--primary-foreground))',
+                boxShadow: '0 4px 20px hsl(var(--primary) / 0.3)',
               }}
             >
               Explore All Captions

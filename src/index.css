@@ -8,45 +8,47 @@
 */
 
 @layer base {
+  /* Light theme (default) */
   :root {
-    --background: 232 20% 7%;
-    --foreground: 40 20% 92%;
-    --card: 235 18% 10%;
-    --card-foreground: 40 20% 92%;
-    --popover: 235 18% 12%;
-    --popover-foreground: 40 20% 92%;
-    --primary: 38 90% 54%;
-    --primary-foreground: 232 20% 7%;
-    --secondary: 240 10% 16%;
-    --secondary-foreground: 40 20% 85%;
-    --muted: 240 10% 15%;
-    --muted-foreground: 260 8% 55%;
-    --accent: 271 60% 70%;
-    --accent-foreground: 232 20% 7%;
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 40 20% 92%;
-    --border: 240 12% 18%;
-    --input: 240 12% 16%;
-    --ring: 38 90% 54%;
+    --background: 40 30% 96%;
+    --foreground: 232 25% 15%;
+    --card: 40 25% 98%;
+    --card-foreground: 232 25% 15%;
+    --popover: 40 25% 99%;
+    --popover-foreground: 232 25% 15%;
+    --primary: 38 90% 42%;
+    --primary-foreground: 40 30% 98%;
+    --secondary: 40 15% 90%;
+    --secondary-foreground: 232 20% 20%;
+    --muted: 40 20% 91%;
+    --muted-foreground: 232 10% 42%;
+    --accent: 271 55% 50%;
+    --accent-foreground: 40 30% 98%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 40 30% 98%;
+    --border: 40 15% 82%;
+    --input: 40 15% 86%;
+    --ring: 38 90% 42%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(38, 90%, 54%), hsl(25, 90%, 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(271, 60%, 58%), hsl(38, 90%, 54%));
-    --gradient-hero: linear-gradient(135deg, hsl(232, 35%, 9%) 0%, hsl(240, 25%, 7%) 50%, hsl(232, 20%, 6%) 100%);
-    --shadow-glow: 0 0 40px hsl(38 90% 54% / 0.3);
-    --shadow-card: 0 8px 40px hsl(0 0% 0% / 0.45);
+    --gradient-primary: linear-gradient(135deg, hsl(38, 90%, 42%), hsl(25, 90%, 48%));
+    --gradient-secondary: linear-gradient(135deg, hsl(271, 55%, 50%), hsl(38, 90%, 42%));
+    --gradient-hero: linear-gradient(135deg, hsl(40, 30%, 97%) 0%, hsl(35, 25%, 95%) 50%, hsl(40, 30%, 93%) 100%);
+    --shadow-glow: 0 0 40px hsl(38 90% 42% / 0.2);
+    --shadow-card: 0 8px 40px hsl(232 20% 7% / 0.1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --radius: 0.75rem;
 
-    --sidebar-background: 232 20% 7%;
-    --sidebar-foreground: 40 20% 92%;
-    --sidebar-primary: 38 90% 54%;
-    --sidebar-primary-foreground: 232 20% 7%;
-    --sidebar-accent: 240 10% 15%;
-    --sidebar-accent-foreground: 40 20% 92%;
-    --sidebar-border: 240 12% 18%;
-    --sidebar-ring: 38 90% 54%;
+    --sidebar-background: 40 30% 96%;
+    --sidebar-foreground: 232 25% 15%;
+    --sidebar-primary: 38 90% 42%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 40 20% 91%;
+    --sidebar-accent-foreground: 232 25% 15%;
+    --sidebar-border: 40 15% 82%;
+    --sidebar-ring: 38 90% 42%;
   }
 
+  /* Dark theme */
   .dark {
     --background: 232 20% 7%;
     --foreground: 40 20% 92%;
@@ -87,8 +89,12 @@
   * { @apply border-border; }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
     scroll-behavior: smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
@@ -110,9 +116,9 @@
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: hsl(240, 12%, 10%); }
-  ::-webkit-scrollbar-thumb { background: hsl(240, 12%, 25%); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(38, 90%, 45%); }
+  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
 }
 
 /* ─────────────────────────────────────────────
@@ -358,14 +364,14 @@
   .glow-amber    { box-shadow: 0 0 30px hsl(38 90% 54% / 0.35); }
 
   .glass {
-    background: hsl(240 10% 15% / 0.6);
+    background: hsl(var(--muted) / 0.6);
     backdrop-filter: blur(12px);
-    border: 1px solid hsl(40 20% 92% / 0.08);
+    border: 1px solid hsl(var(--foreground) / 0.08);
   }
 
   .ink-card {
-    background: hsl(235, 18%, 10%);
-    border: 1px solid hsl(240, 12%, 18%);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
   }
 
@@ -398,14 +404,14 @@
   }
 
   .bg-grid-dots {
-    background-image: radial-gradient(hsl(40 20% 92% / 0.06) 1px, transparent 1px);
+    background-image: radial-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
   .bg-grid-lines {
     background-image:
-      linear-gradient(hsl(40 20% 92% / 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(40 20% 92% / 0.03) 1px, transparent 1px);
+      linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 }
